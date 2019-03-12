@@ -57,14 +57,23 @@ CORE_API const TCHAR* appGetSystemErrorMessage( INT Error=0 );
 CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... );
 
 #define debugf				GLog->Logf
+#define warnf         GWarn->Logf
 #define appErrorf			GError->Logf
 
 #if DO_GUARD_SLOW
-	#define debugfSlow		GLog->Logf
-	#define appErrorfSlow	GError->Logf
+	#define debugfSlow    GLog->Logf
+	#define warnfSlow     GWarn->Logf
+	#define appErrorfSlow GError->Logf
 #else
-	#define debugfSlow		GNull->Logf
-	#define appErrorfSlow	GNull->Logf
+	#define debugfSlow    GNull->Logf
+	#define warnfSlow     GNull->Logf
+	#define appErrorfSlow GNull->Logf
+#endif
+
+#if UNICODE
+	#define appPrintf wprintf
+#else
+	#define appPrintf printf
 #endif
 
 /*-----------------------------------------------------------------------------

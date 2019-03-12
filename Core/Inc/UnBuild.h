@@ -1,6 +1,7 @@
 /*=============================================================================
 	UnBuild.h: Unreal build settings.
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
+	Copyright 2015-2019 Sebastian Kaufel. All Rights Reserved.
 =============================================================================*/
 
 #if defined(_DEBUG) && !defined(_REALLY_WANT_DEBUG)
@@ -20,6 +21,20 @@
 // Always do a full recompile of 100% of the C++ code (all DLL's and EXE's) 
 // when switching between DEBUG and RELEASE builds.  The two builds generate 
 // the same named EXE's and DLL's, but they are not compatible.
+// 
+#endif
+
+#if defined(_NATIVE_WCHAR_T_DEFINED) && !defined(_REALLY_WANT_NATIVE_WCHAR_T_DEFINED)
+#error "Your active configuration treats wchar_t as a built-in type.  Click here for important information!"
+//
+// ** IMPORTANT INFORMATION **
+//
+// MSVC6 did not implement wchar_t as a build-in type, but used a typedef for it.
+// This behaviour is not C++ standard conform, but later MSVC versions offer 
+// the /Zc:wchar_t- compiler option for backwards compatibility. Omniting this
+// option causes compile and link errors, so you are need to change this option.
+//
+// See: https://msdn.microsoft.com/de-de/library/dh8che7s.aspx
 // 
 #endif
 

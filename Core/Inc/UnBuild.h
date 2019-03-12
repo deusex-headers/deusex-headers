@@ -54,7 +54,7 @@
 
 // Whether to track call-stack errors in performance critical routines.
 #ifndef DO_GUARD_SLOW
-#define DO_GUARD_SLOW 0
+#define DO_GUARD_SLOW 1
 #endif
 
 // Whether to perform CPU-intensive timing of critical loops.
@@ -74,7 +74,7 @@
 
 // Whether to use 3DNow! assembler code.
 #ifndef ASM3DNOW
-#define ASM3DNOW 1
+#define ASM3DNOW 0
 #endif
 
 // Whether to use Katmai assembler code.

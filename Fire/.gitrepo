@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/deusex-headers/Fire.git
+	branch = master
+	commit = 078e3c58a43f95764198e84d92af6f653f10f7f4
+	parent = 9ebb8b82f5961ca2f8f3c19b7b3eb021a7c8461e
+	method = merge
+	cmdver = 0.4.0

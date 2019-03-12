@@ -73,9 +73,37 @@ BYTE CORE_API GRegisterNative( INT iNative, const Native& Func );
 #define P_GET_ROTATOR(var)          P_GET_STRUCT(FRotator,var)
 #define P_GET_ROTATOR_OPTX(var,def) P_GET_STRUCT_OPTX(FRotator,var,def)
 #define P_GET_ROTATOR_REF(var)      P_GET_STRUCT_REF(FRotator,var)
+#define P_GET_COLOR(var)            P_GET_STRUCT(FColor,var)
+#define P_GET_COLOR_OPTX(var,def)   P_GET_STRUCT_OPTX(FColor,var,def)
+#define P_GET_COLOR_REF(var)        P_GET_STRUCT_REF(FColor,var)
+#define P_GET_COORDS(var)           P_GET_STRUCT(FCoords,var)
+#define P_GET_COORDS_OPTX(var,def)  P_GET_STRUCT_OPTX(FCoords,var,def)
+#define P_GET_COORDS_REF(var)       P_GET_STRUCT_REF(FCoords,var)
+#define P_GET_SCALE(var)            P_GET_STRUCT(FScale,var)
+#define P_GET_SCALE_OPTX(var,def)   P_GET_STRUCT_OPTX(FScale,var,def)
+#define P_GET_SCALE_REF(var)        P_GET_STRUCT_REF(FScale,var)
+#define P_GET_BOX(var)              P_GET_STRUCT(FBox,var)
+#define P_GET_BOX_OPTX(var,def)     P_GET_STRUCT_OPTX(FBox,var,def)
+#define P_GET_BOX_REF(var)          P_GET_STRUCT_REF(FBox,var)
+#define P_GET_SPHERE(var)           P_GET_STRUCT(FSphere,var)
+#define P_GET_SPHERE_OPTX(var,def)  P_GET_STRUCT_OPTX(FSphere,var,def)
+#define P_GET_SPHERE_REF(var)       P_GET_STRUCT_REF(FSphere,var)
 #define P_GET_ACTOR(var)            P_GET_OBJECT(AActor,var)
 #define P_GET_ACTOR_OPTX(var,def)   P_GET_OBJECT_OPTX(AActor,var,def)
 #define P_GET_ACTOR_REF(var)        P_GET_OBJECT_REF(AActor,var)
+#define P_GET_TEXTURE(var)          P_GET_OBJECT(UTexture,var)
+#define P_GET_TEXTURE_OPTX(var,def) P_GET_OBJECT_OPTX(UTexture,var,def)
+#define P_GET_TEXTURE_REF(var)      P_GET_OBJECT_REF(UTexture,var)
+#define P_GET_SOUND(var)            P_GET_OBJECT(USound,var)
+#define P_GET_SOUND_OPTX(var,def)   P_GET_OBJECT_OPTX(USound,var,def)
+#define P_GET_SOUND_REF(var)        P_GET_OBJECT_REF(USound,var)
+#define P_GET_CLASS(var)            P_GET_OBJECT(UClass,var)
+#define P_GET_CLASS_OPTX(var,def)   P_GET_OBJECT_OPTX(UClass,var,def)
+#define P_GET_CLASS_REF(var)        P_GET_OBJECT_REF(UClass,var)
+#define P_GET_DWORD(var)            DWORD var=0;                 Stack.Step( Stack.Object, &var    );
+#define P_GET_DWORD_OPTX(var,def)   DWORD var=def;               Stack.Step( Stack.Object, &var    );
+#define P_GET_DWORD_REF(var)        DWORD var##T=0; GPropAddr=0; Stack.Step( Stack.Object, &var##T ); DWORD* var = GPropAddr ? (DWORD*)GPropAddr:&var##T;
+
 
 //
 // Iterator macros.

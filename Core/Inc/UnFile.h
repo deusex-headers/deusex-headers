@@ -461,9 +461,7 @@ inline void* operator new( unsigned int Size )
 }
 inline void operator delete( void* Ptr )
 {
-	guardSlow(delete);
 	appFree( Ptr );
-	unguardSlow;
 }
 
 #if PLATFORM_NEEDS_ARRAY_NEW

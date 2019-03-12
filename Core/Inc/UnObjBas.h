@@ -385,6 +385,7 @@ class CORE_API UObject : public FUnknown
 
 	// Friends.
 	friend class FObjectIterator;
+	friend class FExactObjectIterator;
 	friend class ULinkerLoad;
 	friend class ULinkerSave;
 	friend class UPackageMap;
@@ -1003,6 +1004,58 @@ public:
 	T* operator-> ()
 	{
 		return (T*)FObjectIterator::operator->();
+	}
+};
+
+//
+// Class for iterating through all objects.
+//
+class FExactObjectIterator
+{
+public:
+	FExactObjectIterator( UClass* InClass=UObject::StaticClass() )
+	:	Class( InClass ), Index( -1 )
+	{
+		check(Class);
+		++*this;
+	}
+	void operator++()
+	{
+		while( ++Index<UObject::GObjObjects.Num() && (!UObject::GObjObjects(Index) || UObject::GObjObjects(Index)->GetClass()!=Class) );
+	}
+	UObject* operator*()
+	{
+		return UObject::GObjObjects(Index);
+	}
+	UObject* operator->()
+	{
+		return UObject::GObjObjects(Index);
+	}
+	operator UBOOL()
+	{
+		return Index<UObject::GObjObjects.Num();
+	}
+protected:
+	UClass* Class;
+	INT Index;
+};
+
+//
+// Class for iterating through all objects which are of class.
+//
+template< class T > class TExactObjectIterator : public FExactObjectIterator
+{
+public:
+	TExactObjectIterator()
+	:	FExactObjectIterator( T::StaticClass() )
+	{}
+	T* operator* ()
+	{
+		return (T*)FExactObjectIterator::operator*();
+	}
+	T* operator-> ()
+	{
+		return (T*)FExactObjectIterator::operator->();
 	}
 };
 

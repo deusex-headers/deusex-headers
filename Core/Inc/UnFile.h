@@ -223,6 +223,7 @@ CORE_API const TCHAR* LocalizeError( const TCHAR* Key, const TCHAR* Package=GPac
 CORE_API const TCHAR* LocalizeProgress( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 CORE_API const TCHAR* LocalizeQuery( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 CORE_API const TCHAR* LocalizeGeneral( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
+inline   const TCHAR* LocalizeWarning( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL ) { return Localize( TEXT("Warnings"), Key, Package, LangExt ); }
 
 #if UNICODE
 	CORE_API const TCHAR* Localize( const ANSICHAR* Section, const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL, UBOOL Optional=0 );
@@ -230,6 +231,7 @@ CORE_API const TCHAR* LocalizeGeneral( const TCHAR* Key, const TCHAR* Package=GP
 	CORE_API const TCHAR* LocalizeProgress( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 	CORE_API const TCHAR* LocalizeQuery( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 	CORE_API const TCHAR* LocalizeGeneral( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
+	inline   const TCHAR* LocalizeWarning( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL ) { return Localize( "Warnings", Key, Package, LangExt ); }
 #endif
 
 /*-----------------------------------------------------------------------------

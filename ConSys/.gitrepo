@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/deusex-headers/ConSys.git
+	branch = master
+	commit = 4d59b6b82661ab2fcd03d2d0929c617f15a0ef40
+	parent = 41187a5a33b213091d31ded0a36adcd905e6f322
+	method = merge
+	cmdver = 0.4.0

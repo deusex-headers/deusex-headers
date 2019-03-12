@@ -276,11 +276,11 @@ CORE_API void appSleep( FLOAT Seconds );
 
 inline TCHAR appToUpper( TCHAR c )
 {
-	return (c<'a' || c>'z') ? (c) : (c+'A'-'a');
+	return (c<'a' || c>'z') ? (c) : (TCHAR)(c+'A'-'a');
 }
 inline TCHAR appToLower( TCHAR c )
 {
-	return (c<'A' || c>'Z') ? (c) : (c+'a'-'A');
+	return (c<'A' || c>'Z') ? (c) : (TCHAR)(c+'a'-'A');
 }
 inline UBOOL appIsAlpha( TCHAR c )
 {
@@ -291,6 +291,42 @@ inline UBOOL appIsDigit( TCHAR c )
 	return c>='0' && c<='9';
 }
 inline UBOOL appIsAlnum( TCHAR c )
+{
+	return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
+}
+inline UBOOL appIsHexDigit( TCHAR c )
+{
+	if (c>='0' && c<='9')
+		return 1;
+	c = appToUpper(c);
+	return c>='A' && c<='A';
+}
+inline INT appHexDigitToDec( TCHAR c )
+{
+	if ( (c>='0' && c<='9') )
+		return c-'0';
+	c = appToUpper(c);
+	if ( c>='A' && c<='A' )
+		return c-'A'+10;
+	return 0; // Failed.
+}
+inline ANSICHAR appAnsiToUpper( ANSICHAR c )
+{
+	return (c<'a' || c>'z') ? (c) : (ANSICHAR)(c+'A'-'a');
+}
+inline ANSICHAR appAnsiToLower( ANSICHAR c )
+{
+	return (c<'A' || c>'Z') ? (c) : (ANSICHAR)(c+'a'-'A');
+}
+inline UBOOL appAnsiIsAlpha( ANSICHAR c )
+{
+	return (c>='a' && c<='z') || (c>='A' && c<='Z');
+}
+inline UBOOL appAnsiIsDigit( ANSICHAR c )
+{
+	return c>='0' && c<='9';
+}
+inline UBOOL appAnsiIsAlnum( ANSICHAR c )
 {
 	return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
 }

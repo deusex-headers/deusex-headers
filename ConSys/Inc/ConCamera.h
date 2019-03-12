@@ -27,14 +27,27 @@ public:
 	BYTE  cameraPosition;				// Predefined camera position
 	BYTE  cameraType;					// Camera Type for current event
 	BYTE  cameraMode;					// Current camera display mode
+	class DConLight* conLightSpeaker;		// Used to light actor's faces
+	class DConLight* conLightSpeakingTo;	// Used to light actor's faces
 
 	FVector cameraOffset;				// Camera offset, for CT_Actor mode
 	FRotator rotation;					// Camera Rotation
-	
+	FLOAT cosAngle;
+	INT firstActorRotation;
+	INT setActorCount;
+	BITFIELD bCameraLocationSaved:1;
+
+	// Camera Fallback Positions (for when camera view obstructed)
+	BYTE cameraFallbackPositions[9];
+	BYTE cameraHeightPositions[9];
+	INT currentFallback;
+	BITFIELD bUsingFallback:1;
+
 	// Used for CT_Speakers mode
 	FLOAT heightModifer;				// Height Modifier
 	FLOAT centerModifier;				// Center Point modifier
 	FLOAT distanceMultiplier;			// Distance Multiplier
+	FLOAT heightFallbackTrigger;
 
 	// Actors associated with camera placement
 	class AActor* firstActor;			

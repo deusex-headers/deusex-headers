@@ -454,6 +454,118 @@ CORE_API INT appFloor( FLOAT Value );
 CORE_API INT appCeil( FLOAT Value );
 #endif
 
+/*------------------------------------------------------------------------------------
+	Approximate math functions.
+------------------------------------------------------------------------------------*/
+
+//
+// Famous Fast inverse square root.
+//
+// A bit on the history of it:
+// https://www.beyond3d.com/content/articles/8/ (tldr author unknown)
+//
+// A bit more detailed view, constant derivation and error bounds are
+// discussed here:
+// https://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
+// 
+// Nomenclature: Nn, where n is the number of newton iterations.
+//
+// max rel. err.
+//   n=0: (unknown) Large.
+//   n=1: 0.175124  Rather large for resonable work, but should be enough for rejection work.
+//   n=2: 0.000465  Quite good.
+//   n=3: (unknown) Should be enough for almost everything.
+//
+// So use n=2 as a about safe default.
+#define appFastInvSqrt(x) appFastInvSqrtN2(x)
+//
+
+inline FLOAT appFastInvSqrtN0( FLOAT X )
+{
+	INT I = *(INT*)&X;
+
+	// Trick.
+	I = 0x5f375a86-(I>>1);
+	X = *(FLOAT*)&I;
+
+	// No Newton iteration.
+	return X;
+}
+inline FLOAT appFastInvSqrtN1( FLOAT X )
+{
+	FLOAT H = 0.5f*X; INT I = *(INT*)&X;
+
+	// Trick.
+	I = 0x5f375a86-(I>>1);
+	X = *(FLOAT*)&I;
+
+	// Single Newton iteration.
+	X = X*(1.5f-H*X*X);
+	return X;
+}
+inline FLOAT appFastInvSqrtN2( FLOAT X )
+{
+	FLOAT H = 0.5f*X; INT I = *(INT*)&X;
+
+	// Trick.
+	I = 0x5f375a86-(I>>1);
+	X = *(FLOAT*)&I;
+
+	// Two Newton iterations.
+	X = X*(1.5f-H*X*X);
+	X = X*(1.5f-H*X*X);
+	return X;
+}
+inline FLOAT appFastInvSqrtN3( FLOAT X )
+{
+	FLOAT H = 0.5f*X; INT I = *(INT*)&X;
+
+	// Trick.
+	I = 0x5f375a86-(I>>1);
+	X = *(FLOAT*)&I;
+
+	// Three Newton iterations.
+	X = X*(1.5f-H*X*X);
+	X = X*(1.5f-H*X*X);
+	X = X*(1.5f-H*X*X);
+	return X;
+}
+
+// Conveniance.
+inline FLOAT appFastSqrt  ( FLOAT X ) { return 1.f/appFastInvSqrt  (X); }
+inline FLOAT appFastSqrtN0( FLOAT X ) { return 1.f/appFastInvSqrtN0(X); }
+inline FLOAT appFastSqrtN1( FLOAT X ) { return 1.f/appFastInvSqrtN1(X); }
+inline FLOAT appFastSqrtN2( FLOAT X ) { return 1.f/appFastInvSqrtN2(X); }
+inline FLOAT appFastSqrtN3( FLOAT X ) { return 1.f/appFastInvSqrtN3(X); }
+
+//
+// Taylor series expansion of arccos.
+//
+#define ATP_PI (3.1415926535897932f)
+inline FLOAT appAcosTaylorP1( FLOAT X )
+{
+	return (ATP_PI/2.f)-X;
+}
+inline FLOAT appAcosTaylorP3( FLOAT X )
+{
+	//return (PI/2)-X-(1.f/6.f)*X*X*X;
+	return (ATP_PI/2.f)-X*(1.f+(1.f/6.f)*X*X);
+}
+inline FLOAT appAcosTaylorP5( FLOAT X )
+{
+	//return (PI/2)-X-(1.f/6.f)*X*X*X-(3.f/40.f)*X*X*X*X*X;
+	return (ATP_PI/2.f)-X*(1.f+X*X*((1.f/6.f)+X*X*(3.f/40.f)));
+}
+inline FLOAT appAcosTaylorP7( FLOAT X )
+{
+	//return (PI/2)-X-(1.f/6.f)*X*X*X-(3.f/40.f)*X*X*X*X*X-(5.f/112.f)*X*X*X*X*X*X*X;
+	return (ATP_PI/2.f)-X*(1.f+X*X*((1.f/6.f)+X*X*((3.f/40.f)+X*X*(5.f/112.f))));
+}
+inline FLOAT appAcosTaylorP9( FLOAT X )
+{
+	return (ATP_PI/2.f)-X-(1.f/6.f)*X*X*X-(3.f/40.f)*X*X*X*X*X-(5.f/112.f)*X*X*X*X*X*X*X-(35.f/1152.f)*X*X*X*X*X*X*X*X*X;
+}
+
 /*-----------------------------------------------------------------------------
 	Array functions.
 -----------------------------------------------------------------------------*/

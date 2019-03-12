@@ -928,8 +928,17 @@ template< class T > T* LoadObject( UObject* Outer, const TCHAR* Name, const TCHA
 	return (T*)UObject::StaticLoadObject( T::StaticClass(), Outer, Name, Filename, LoadFlags, Sandbox );
 }
 
+// 
 // Load a class object.
-template< class T > UClass* LoadClass( UObject* Outer, const TCHAR* Name, const TCHAR* Filename, DWORD LoadFlags, UPackageMap* Sandbox )
+// 
+// MSVC6 has a compiler bug handling templates. If T is not part of the
+// signature and the template used for multiple T inside a function,
+// it can results in reuse of the first template instanciation with
+// erroneous T.
+// 
+// This can be worked around by adding a default parameter using T.
+//
+template< class T > UClass* LoadClass( UObject* Outer, const TCHAR* Name, const TCHAR* Filename, DWORD LoadFlags, UPackageMap* Sandbox, T* JuistMSVC6Things=NULL )
 {
 	return UObject::StaticLoadClass( T::StaticClass(), Outer, Name, Filename, LoadFlags, Sandbox );
 }

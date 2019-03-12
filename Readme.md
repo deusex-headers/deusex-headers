@@ -1,4 +1,5 @@
-##Use as submodules
+**Use as submodules**
+
 	git submodule add https://github.com/deusex-headers/Core.git
 	git submodule add https://github.com/deusex-headers/Engine.git
 	git submodule add https://github.com/deusex-headers/Editor.git
@@ -12,7 +13,8 @@
 	git submodule add https://github.com/deusex-headers/DeusEx.git
 
 
-##Use as [subrepos](https://github.com/ingydotnet/git-subrepo/)
+**Use as [subrepos](https://github.com/ingydotnet/git-subrepo/)**
+
 	git subrepo clone https://github.com/deusex-headers/Core.git
 	git subrepo clone https://github.com/deusex-headers/Engine.git
 	git subrepo clone https://github.com/deusex-headers/Editor.git

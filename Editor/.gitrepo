@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/deusex-headers/Editor.git
+	branch = master
+	commit = eb5f3a8bb9ac1d5d95f6a23e43f50c3ad7d8724a
+	parent = 9c8e7cca0a003e2ef228c475bda4524d67d61810
+	method = merge
+	cmdver = 0.4.0

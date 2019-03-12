@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/deusex-headers/Render.git
+	branch = master
+	commit = e778b18c1fa3370c1a94629efa96ca2d03940bba
+	parent = a41b94e7232b9bd1cf4651a9724d0baa7e28e40c
+	method = merge
+	cmdver = 0.4.0

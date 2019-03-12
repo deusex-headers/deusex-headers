@@ -449,15 +449,11 @@ CORE_API void appMemzero( void* Dest, INT Count );
 //
 inline void* operator new( unsigned int Size, const TCHAR* Tag )
 {
-	guardSlow(new);
 	return appMalloc( Size, Tag );
-	unguardSlow;
 }
 inline void* operator new( unsigned int Size )
 {
-	guardSlow(new);
 	return appMalloc( Size, TEXT("new") );
-	unguardSlow;
 }
 inline void operator delete( void* Ptr )
 {
@@ -467,21 +463,15 @@ inline void operator delete( void* Ptr )
 #if PLATFORM_NEEDS_ARRAY_NEW
 inline void* operator new[]( unsigned int Size, const TCHAR* Tag )
 {
-	guardSlow(new);
 	return appMalloc( Size, Tag );
-	unguardSlow;
 }
 inline void* operator new[]( unsigned int Size )
 {
-	guardSlow(new);
 	return appMalloc( Size, TEXT("new") );
-	unguardSlow;
 }
 inline void operator delete[]( void* Ptr )
 {
-	guardSlow(delete);
 	appFree( Ptr );
-	unguardSlow;
 }
 #endif
 

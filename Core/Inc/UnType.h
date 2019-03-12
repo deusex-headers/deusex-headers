@@ -588,7 +588,7 @@ inline UBOOL UStruct::StructCompare( const void* A, const void* B )
 -----------------------------------------------------------------------------*/
 
 #define CPP_PROPERTY(name) \
-	EC_CppProperty, (BYTE*)&((ThisClass*)NULL)->name - (BYTE*)NULL
+	EC_CppProperty, (SIZE_T)&((ThisClass*)NULL)->name - (SIZE_T)NULL
 
 /*-----------------------------------------------------------------------------
 	The End.

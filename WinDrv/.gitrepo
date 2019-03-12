@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/deusex-headers/WinDrv.git
+	branch = master
+	commit = 899bbf91ec20589aa265835d8b5abaa41016f0f0
+	parent = 3b8d1fb825562db1bc7bd2d57505821a23dbf538
+	method = merge
+	cmdver = 0.4.0

@@ -82,6 +82,8 @@ CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... );
 	#define appPrintf printf
 #endif
 
+inline void appSanityFail() { appErrorf( TEXT("Sanity test failed. Report this as a bug.") ); } // It feels already wrong to add this. --han
+
 /*-----------------------------------------------------------------------------
 	Misc.
 -----------------------------------------------------------------------------*/

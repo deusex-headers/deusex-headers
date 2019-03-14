@@ -97,13 +97,43 @@ template< class T > inline T Max( const T A, const T B )
 {
 	return (A>=B) ? A : B;
 }
+template< class T > inline T Max( const T A, const T B, const T C )
+{
+	T X = Max<T>( A, B );
+	return (X>=C) ? X : C;
+}
+template< class T > inline T Max( const T A, const T B, const T C, const T D )
+{
+	T X = Max<T>( A, B );
+	T Y = Max<T>( C, D );
+	return (X>=Y) ? X : Y;
+}
 template< class T > inline T Min( const T A, const T B )
 {
 	return (A<=B) ? A : B;
 }
+template< class T > inline T Min( const T A, const T B, const T C )
+{
+	T X = Min<T>( A, B );
+	return (X<=C) ? X : C;
+}
+template< class T > inline T Min( const T A, const T B, const T C, const T D )
+{
+	T X = Min<T>( A, B );
+	T Y = Min<T>( C, D );
+	return (X<=Y) ? X : Y;
+}
 template< class T > inline T Square( const T A )
 {
 	return A*A;
+}
+template< class T > inline T Cube( const T A )
+{
+	return A*A*A;
+}
+template< class T > inline T Quad( const T A )
+{
+	return A*A*A*A;
 }
 template< class T > inline T Clamp( const T X, const T Min, const T Max )
 {

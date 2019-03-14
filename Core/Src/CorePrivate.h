@@ -29,24 +29,5 @@ extern UBOOL GExitPurge;
 #include "UnLinker.h"
 
 /*-----------------------------------------------------------------------------
-	UTextBufferFactory.
------------------------------------------------------------------------------*/
-
-//
-// Imports UTextBuffer objects.
-//
-class CORE_API UTextBufferFactory : public UFactory
-{
-	DECLARE_CLASS(UTextBufferFactory,UFactory,0)
-
-	// Constructors.
-	UTextBufferFactory();
-	void StaticConstructor();
-
-	// UFactory interface.
-	UObject* FactoryCreateText( UClass* Class, UObject* InParent, FName Name, DWORD Flags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn );
-};
-
-/*-----------------------------------------------------------------------------
 	The End.
 -----------------------------------------------------------------------------*/

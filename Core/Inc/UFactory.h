@@ -39,12 +39,12 @@ class CORE_API UFactory : public UObject
 	void Serialize( FArchive& Ar );
 
 	// UFactory interface.
-	virtual UObject* FactoryCreateText( UClass* Class, UObject* InParent, FName Name, DWORD Flags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn ) {return NULL;}
-	virtual UObject* FactoryCreateBinary( UClass* Class, UObject* InParent, FName Name, DWORD Flags, UObject* Context, const TCHAR* Type, const BYTE*& Buffer, const BYTE* BufferEnd, FFeedbackContext* Warn ) {return NULL;}
-	virtual UObject* FactoryCreateNew( UClass* Class, UObject* InParent, FName Name, DWORD Flags, UObject* Context, FFeedbackContext* Warn ) {return NULL;}
+	virtual UObject* FactoryCreateText( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn ) {return NULL;}
+	virtual UObject* FactoryCreateBinary( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, UObject* Context, const TCHAR* Type, const BYTE*& Buffer, const BYTE* BufferEnd, FFeedbackContext* Warn ) {return NULL;}
+	virtual UObject* FactoryCreateNew( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, UObject* Context, FFeedbackContext* Warn ) {return NULL;}
 
 	// UFactory functions.
-	static UObject* StaticImportObject( UClass* Class, UObject* InOuter, FName Name, DWORD Flags, const TCHAR* Filename=TEXT(""), UObject* Context=NULL, UFactory* Factory=NULL, const TCHAR* Parms=NULL, FFeedbackContext* Warn=GWarn );
+	static UObject* StaticImportObject( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, const TCHAR* Filename=TEXT(""), UObject* Context=NULL, UFactory* Factory=NULL, const TCHAR* Parms=NULL, FFeedbackContext* Warn=GWarn );
 };
 
 // Import an object using a UFactory.
@@ -52,6 +52,25 @@ template< class T > T* ImportObject( UObject* Outer, FName Name, DWORD Flags, co
 {
 	return (T*)UFactory::StaticImportObject( T::StaticClass(), Outer, Name, Flags, Filename, Context, Factory, Parms, Warn );
 }
+
+/*-----------------------------------------------------------------------------
+	UTextBufferFactory.
+-----------------------------------------------------------------------------*/
+
+//
+// Imports UTextBuffer objects.
+//
+class CORE_API UTextBufferFactory : public UFactory
+{
+	DECLARE_CLASS(UTextBufferFactory,UFactory,0)
+
+	// Constructors.
+	UTextBufferFactory();
+	void StaticConstructor();
+
+	// UFactory interface.
+	UObject* FactoryCreateText( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn );
+};
 
 /*----------------------------------------------------------------------------
 	The End.

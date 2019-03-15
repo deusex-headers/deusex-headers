@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/deusex-headers/Engine.git
 	branch = master
-	commit = 64c788c93f5492a6d5d678fcd644275fc9ed41a8
-	parent = 59fd574083793914b4afd3ea11059fc991b82e2a
+	commit = d2c474747991ea2ce9c2daae55652320317f6b7f
+	parent = a83d2c6a4851b0066bab7a39f7c3314ce43e5d1f
 	method = merge
 	cmdver = 0.4.0

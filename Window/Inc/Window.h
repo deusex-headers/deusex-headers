@@ -424,8 +424,15 @@ struct WINDOW_API FDelegate
 	: TargetObject( InTargetObject )
 	, TargetInvoke( InTargetInvoke )
 	{}
+	FDelegate& operator=( const FDelegate& Other )
+	{
+		TargetObject = Other.TargetObject;
+		TargetInvoke = Other.TargetInvoke;
+		return *this;
+	}
 	virtual void operator()() { if( TargetObject ) (TargetObject->*TargetInvoke)(); }
 };
+
 struct WINDOW_API FDelegateInt
 {
 	FCommandTarget* TargetObject;
@@ -434,6 +441,12 @@ struct WINDOW_API FDelegateInt
 	: TargetObject( InTargetObject )
 	, TargetInvoke( InTargetInvoke )
 	{}
+	FDelegateInt& operator=( const FDelegateInt& Other )
+	{
+		TargetObject = Other.TargetObject;
+		TargetInvoke = Other.TargetInvoke;
+		return *this;
+	}
 	virtual void operator()( int I ) { if( TargetObject ) (TargetObject->*TargetInvoke)(I); }
 };
 
@@ -1585,7 +1598,7 @@ class WINDOW_API WUrlButton : public WCoolButton
 	WUrlButton()
 	{}
 	WUrlButton( WWindow* InOwner, const TCHAR* InURL, INT InId=0 )
-	: WCoolButton( InOwner, InId, FDelegate(this,(TDelegate)OnClick) )
+	: WCoolButton( InOwner, InId, FDelegate(this,(TDelegate)&WUrlButton::OnClick) )
 	, URL( InURL )
 	{
 		FrameFlags = CBFF_ShowOver | CBFF_UrlStyle | CBFF_NoCenter;
@@ -2271,14 +2284,15 @@ class WINDOW_API WLog : public WTerminal
 	}
 	void OnCopyData( HWND hWndSender, COPYDATASTRUCT* CD )
 	{
-		guard(OnCopyData);
+		guard(WLog::OnCopyData);
 		if( Exec )
 		{
 			debugf( TEXT("WM_COPYDATA: %s"), (TCHAR*)CD->lpData );
 			Exec->Exec( TEXT("TakeFocus"), *GLogWindow );
+			const TCHAR* Data = *(TCHAR**)&CD->lpData;
 			TCHAR NewURL[1024];
 			if
-			(	ParseToken(*(TCHAR**)&CD->lpData,NewURL,ARRAY_COUNT(NewURL),0)
+			(	ParseToken(Data,NewURL,ARRAY_COUNT(NewURL),0)
 			&&	NewURL[0]!='-')
 				Exec->Exec( *(US+TEXT("Open ")+NewURL),*GLogWindow );
 		}
@@ -2485,8 +2499,8 @@ class WINDOW_API WPasswordDialog : public WDialog
 	// Constructor.
 	WPasswordDialog()
 	: WDialog	  ( TEXT("PasswordDialog"), IDDIALOG_Password )
-	, OkButton    ( this, IDOK,     FDelegate(this,(TDelegate)EndDialogTrue) )
-	, CancelButton( this, IDCANCEL, FDelegate(this,(TDelegate)EndDialogFalse) )
+	, OkButton    ( this, IDOK,     FDelegate(this,(TDelegate)&WDialog::EndDialogTrue) )
+	, CancelButton( this, IDCANCEL, FDelegate(this,(TDelegate)&WDialog::EndDialogFalse) )
 	, Name		  ( this, IDEDIT_Name )
 	, Password	  ( this, IDEDIT_Password )
 	, Prompt      ( this, IDLABEL_Prompt )
@@ -2535,7 +2549,7 @@ class WINDOW_API WTextScrollerDialog : public WDialog
 	WTextScrollerDialog( const TCHAR* InCaption, const TCHAR* InMessage )
 	: WDialog	( TEXT("TextScrollerDialog"), IDDIALOG_TextScroller )
 	, TextEdit  ( this, IDEDIT_TextEdit )
-	, OkButton  ( this, IDOK, FDelegate(this,(TDelegate)EndDialogTrue) )
+	, OkButton  ( this, IDOK, FDelegate(this,(TDelegate)&WDialog::EndDialogTrue) )
 	, Caption   ( InCaption )
 	, Message   ( InMessage )
 	{}
@@ -3648,8 +3662,8 @@ public:
 				Rect.Min.X = 28+OwnerProperties->GetDividerWidth();
 				Rect.Min.Y--;
 				TrackControl = new WTrackBar( &OwnerProperties->List );
-				TrackControl->ThumbTrackDelegate    = FDelegate(this,(TDelegate)OnTrackBarThumbTrack);
-				TrackControl->ThumbPositionDelegate = FDelegate(this,(TDelegate)OnTrackBarThumbPosition);
+				TrackControl->ThumbTrackDelegate    = FDelegate(this,(TDelegate)&FPropertyItem::OnTrackBarThumbTrack);
+				TrackControl->ThumbPositionDelegate = FDelegate(this,(TDelegate)&FPropertyItem::OnTrackBarThumbPosition);
 				TrackControl->OpenWindow( 0 );
 				TrackControl->SetTicFreq( 32 );
 				TrackControl->SetRange( 0, 255 );
@@ -3675,8 +3689,8 @@ public:
 
 				ComboControl = new WComboBox( HolderControl );
 				ComboControl->Snoop = this;
-				ComboControl->SelectionEndOkDelegate     = FDelegate(this,(TDelegate)ComboSelectionEndOk);
-				ComboControl->SelectionEndCancelDelegate = FDelegate(this,(TDelegate)ComboSelectionEndCancel);
+				ComboControl->SelectionEndOkDelegate     = FDelegate(this,(TDelegate)&FPropertyItem::ComboSelectionEndOk);
+				ComboControl->SelectionEndCancelDelegate = FDelegate(this,(TDelegate)&FPropertyItem::ComboSelectionEndCancel);
 				ComboControl->OpenWindow( 0 );
 				ComboControl->MoveWindow( Rect-HolderRect.Min, 1 );
 
@@ -3718,29 +3732,29 @@ public:
 			{
 				if( Expandable )
 				{
-					AddButton( LocalizeGeneral("AddButton",TEXT("Window")), FDelegate(this,(TDelegate)OnArrayAdd) );
+					AddButton( LocalizeGeneral("AddButton",TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnArrayAdd) );
 				}
-				AddButton( LocalizeGeneral("EmptyButton",TEXT("Window")), FDelegate(this,(TDelegate)OnArrayEmpty) );
+				AddButton( LocalizeGeneral("EmptyButton",TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnArrayEmpty) );
 			}
 			if( Cast<UArrayProperty>(Property->GetOuter()) )
 			{
 				if( Parent->Expandable )
 				{
-					AddButton( LocalizeGeneral("InsertButton",TEXT("Window")), FDelegate(this,(TDelegate)OnArrayInsert) );
-					AddButton( LocalizeGeneral("DeleteButton",TEXT("Window")), FDelegate(this,(TDelegate)OnArrayDelete) );
+					AddButton( LocalizeGeneral("InsertButton",TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnArrayInsert) );
+					AddButton( LocalizeGeneral("DeleteButton",TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnArrayDelete) );
 				}
 			}
 			if( Property->IsA(UStructProperty::StaticClass()) && appStricmp(Cast<UStructProperty>(Property)->Struct->GetName(),TEXT("Color"))==0 )
 			{
 				// Color.
-				AddButton( LocalizeGeneral("BrowseButton",TEXT("Window")), FDelegate(this,(TDelegate)OnChooseColorButton) );
+				AddButton( LocalizeGeneral("BrowseButton",TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnChooseColorButton) );
 			}
 			else if( Property->IsA(UObjectProperty::StaticClass()) )
 			{
 				// Class.
-				AddButton( LocalizeGeneral("BrowseButton",TEXT("Window")), FDelegate(this,(TDelegate)OnBrowseButton) );
-				AddButton( LocalizeGeneral("UseButton",   TEXT("Window")), FDelegate(this,(TDelegate)OnUseCurrentButton) );
-				AddButton( LocalizeGeneral("ClearButton", TEXT("Window")), FDelegate(this,(TDelegate)OnClearButton) );
+				AddButton( LocalizeGeneral("BrowseButton",TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnBrowseButton) );
+				AddButton( LocalizeGeneral("UseButton",   TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnUseCurrentButton) );
+				AddButton( LocalizeGeneral("ClearButton", TEXT("Window")), FDelegate(this,(TDelegate)&FPropertyItem::OnClearButton) );
 			}
 			if
 			(	(Property->IsA(UFloatProperty ::StaticClass()))
@@ -4196,8 +4210,8 @@ class WINDOW_API WProperties : public WPropertiesBase
 		if( PersistentName!=NAME_None )
 			GConfig->GetInt( TEXT("WindowPositions"), *(FString(*PersistentName)+TEXT(".Split")), DividerWidth );
 		PropertiesWindows.AddItem( this );
-		List.DoubleClickDelegate     = FDelegate(this,(TDelegate)OnListDoubleClick);
-		List.SelectionChangeDelegate = FDelegate(this,(TDelegate)OnListSelectionChange);
+		List.DoubleClickDelegate     = FDelegate(this,(TDelegate)&WProperties::OnListDoubleClick);
+		List.SelectionChangeDelegate = FDelegate(this,(TDelegate)&WProperties::OnListSelectionChange);
 		unguard;
 	}
 
@@ -4891,7 +4905,7 @@ public:
 	void OnItemSetFocus()
 	{
 		FPropertyItemBase::OnItemSetFocus();
-		AddButton( LocalizeGeneral("DefaultsButton",TEXT("Window")), FDelegate(this,(TDelegate)OnResetToDefaultsButton) );
+		AddButton( LocalizeGeneral("DefaultsButton",TEXT("Window")), FDelegate(this,(TDelegate)&FObjectConfigItem::OnResetToDefaultsButton) );
 	}
 	void Expand()
 	{
@@ -5114,10 +5128,10 @@ class WINDOW_API WWizardDialog : public WDialog
 	WWizardDialog()
 	: WDialog	    ( TEXT("WizardDialog"), IDDIALOG_WizardDialog )
 	, PageHolder    ( this, IDC_PageHolder )
-	, BackButton    ( this, IDC_Back,   FDelegate(this,(TDelegate)OnBack  ) )
-	, NextButton    ( this, IDC_Next,   FDelegate(this,(TDelegate)OnNext  ) )
-	, FinishButton  ( this, IDC_Finish, FDelegate(this,(TDelegate)OnFinish) )
-	, CancelButton  ( this, IDCANCEL,   FDelegate(this,(TDelegate)OnCancel) )
+	, BackButton    ( this, IDC_Back,   FDelegate(this,(TDelegate)&WWizardDialog::OnBack  ) )
+	, NextButton    ( this, IDC_Next,   FDelegate(this,(TDelegate)&WWizardDialog::OnNext  ) )
+	, FinishButton  ( this, IDC_Finish, FDelegate(this,(TDelegate)&WWizardDialog::OnFinish) )
+	, CancelButton  ( this, IDCANCEL,   FDelegate(this,(TDelegate)&WWizardDialog::OnCancel) )
 	, Pages         ()
 	, CurrentPage   ( NULL )
 	{}

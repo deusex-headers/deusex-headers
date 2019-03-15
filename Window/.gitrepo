@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/deusex-headers/Window.git
 	branch = master
-	commit = 8483933bcbeabc5d99d0c224d73d268b52c75af6
-	parent = 77620e519649e38ef521a4ac3ac587de754dbecc
+	commit = 9d1e99ce6cb0fd96fcdc20bca304c0a607192bc1
+	parent = db6c5f8b342841ec7daae5b33aaaece778d19e92
 	method = merge
 	cmdver = 0.4.0

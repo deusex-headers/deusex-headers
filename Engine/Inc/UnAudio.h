@@ -52,13 +52,13 @@ class ENGINE_API UAudioSubsystem : public USubsystem
 //
 // Sound data.
 //
-class ENGINE_API FSoundData : public TLazyArray<BYTE>
+class FSoundData : public TLazyArray<BYTE>
 {
 public:
 	USound* Owner;
-	void Load();
-	void LoadSpecial();		// DEUS_EX - AJY/CNN - added so we could force the data to LazyLoad without Load() discarding the data
-	FLOAT GetPeriod();
+	ENGINE_API void Load();
+	ENGINE_API void LoadSpecial();		// DEUS_EX - AJY/CNN - added so we could force the data to LazyLoad without Load() discarding the data
+	ENGINE_API FLOAT GetPeriod();
 	FSoundData( USound* InOwner )
 	: Owner( InOwner )
 	{}

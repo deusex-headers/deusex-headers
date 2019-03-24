@@ -215,19 +215,97 @@ enum ETextureClear
 	TCLEAR_Bitmap   = 2,    // Clear the immediate bitmap.
 };
 
+
 //
 // Texture formats.
 //
 enum ETextureFormat
 {
-	// Base types.
-	TEXF_P8			= 0x00,
-	TEXF_RGBA7		= 0x01,
-	TEXF_RGB16		= 0x02,
-	TEXF_DXT1       = 0x03,
-	TEXF_RGB8       = 0x04,
-	TEXF_RGBA8      = 0x05,
-	TEXF_MAX		= 0xff,
+	// Original.
+	TEXF_P8                = 0x00,
+	TEXF_RGBA7             = 0x01,
+	TEXF_R5G6B5            = 0x02, // Prior: TEXF_RGB16. !! Conflicted with naming scheme.
+	TEXF_BC1               = 0x03, // Solid alpha variant. Prefered name.
+	TEXF_DXT1              = 0x03, // Solid alpha variant. Legacy name.
+	TEXF_RGB8              = 0x04,
+	TEXF_RGBA8             = 0x05, // Was BGRA data. RGBA is recommended.
+
+	// Canonical (UnrealEngine 2).
+	TEXF_NODATA            = 0x06,
+	TEXF_BC2               = 0x07, // Prefered name.
+	TEXF_DXT3              = 0x07, // Legacy name.
+	TEXF_BC3               = 0x08, // Prefered name.
+	TEXF_DXT5              = 0x08, // Legacy name.
+	TEXF_R8                = 0x09, // Prefered name.
+	TEXF_L8                = 0x09, // Legacy name.
+	TEXF_R16               = 0x0a, // Prefered name.
+	TEXF_G16               = 0x0a, // Legacy name.
+	TEXF_RRRGGGBBB         = 0x0b,
+
+	// Meta.
+	TEXF_COMPRESSED        = 0x0c,
+	TEXF_UNCOMPRESSED      = 0x0d,
+
+	// Reserved.
+	TEXF_0E                = 0x0e,
+	TEXF_0F                = 0x0f,
+
+	// S3TC (continued).
+	TEXF_BC1_PA            = 0x10, // Punchthrough alpha variant. Prefered name.
+	TEXF_DXT1_PA           = 0x10, // Punchthrough alpha variant. Alternate name.
+
+	// RGTC.
+	TEXF_RGTC_R            = 0x11,
+	TEXF_BC4               = 0x11,
+	TEXF_RGTC_R_S          = 0x12,
+	TEXF_BC4_S             = 0x12,
+	TEXF_RGTC_RG           = 0x13,
+	TEXF_BC5               = 0x13,
+	TEXF_RGTC_RG_S         = 0x14,
+	TEXF_BC5_S             = 0x14,
+
+	// BPTC.
+	TEXF_BPTC_RGBA         = 0x15,
+	TEXF_BC7               = 0x15,
+	TEXF_BPTC_RGB_SF       = 0x16,
+	TEXF_BC6H_S            = 0x16,
+	TEXF_BPTC_RGB_UF       = 0x17,
+	TEXF_BC6H              = 0x17,
+
+	// RGBA (continued).
+	TEXF_R8_S              = 0x18,
+	TEXF_R16_S             = 0x19,
+	TEXF_R32               = 0x1A,
+	TEXF_R32_S             = 0x1B,
+	TEXF_RG8               = 0x1C,
+	TEXF_RG8_S             = 0x1D,
+	TEXF_RG16              = 0x1E,
+	TEXF_RG16_S            = 0x1F,
+	TEXF_RG32              = 0x20,
+	TEXF_RG32_S            = 0x21,
+	TEXF_RGB8_S            = 0x22,
+	TEXF_RGB16             = 0x23, // !! This is not the old TEXF_RGB16 which was 16 bits/color instead of 48 bits/color.
+	TEXF_RGB16_S           = 0x24,
+	TEXF_RGB32             = 0x25,
+	TEXF_RGB32_S           = 0x26,
+	TEXF_RGBA8_S           = 0x27,
+	TEXF_RGBA16            = 0x28,
+	TEXF_RGBA16_S          = 0x29,
+	TEXF_RGBA32            = 0x2A,
+	TEXF_RGBA32_S          = 0x2B,
+
+	// FLOAT.
+	TEXF_R16_F             = 0x2C,
+	TEXF_R32_F             = 0x2D,
+	TEXF_RG16_F            = 0x2E,
+	TEXF_RG32_F            = 0x2F,
+	TEXF_RGB16_F           = 0x30,
+	TEXF_RGB32_F           = 0x31,
+	TEXF_RGBA16_F          = 0x32,
+	TEXF_RGBA32_F          = 0x33,
+
+	// Max.
+	TEXF_MAX		           = 0xff,
 };
 
 //

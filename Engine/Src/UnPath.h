@@ -157,3 +157,9 @@ private:
 	void FindBlockingNormal(FVector &BlockNormal);
 	void addVisNoReach(AActor * start);
 };
+
+struct _FNavInfo
+{
+	class ANavigationPoint* Point;
+	FLOAT Distance;
+};

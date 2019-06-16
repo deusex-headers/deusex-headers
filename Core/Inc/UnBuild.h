@@ -5,37 +5,66 @@
 =============================================================================*/
 
 #if defined(_DEBUG) && !defined(_REALLY_WANT_DEBUG)
-#error "Your active configuration is set to DEBUG.  Click here for important information!"
-//
-// ** IMPORTANT INFORMATION **
-//
-// When running in DEBUG mode, all errors intentionally trigger a breakpoint. 
-// Therefore, DEBUG  builds are only suitable for running from within the debugger.  
-// If you run DEBUG builds outside the debugger, you will get a GPF when an error 
-// occurs instead of a useful error message.  If this is what you want, 
-// define _REALLY_WANT_DEBUG and recompile.
-//
-// This message is here because Visual C++ sets itself to DEBUG mode when you 
-// first load Unreal.dsw, which is probably not what you want.
-//
-// Always do a full recompile of 100% of the C++ code (all DLL's and EXE's) 
-// when switching between DEBUG and RELEASE builds.  The two builds generate 
-// the same named EXE's and DLL's, but they are not compatible.
-// 
+	#error "Your active configuration is set to DEBUG.  Click here for important information!"
+
+	//
+	// ** IMPORTANT INFORMATION **
+	//
+	// When running in DEBUG mode, all errors intentionally trigger a breakpoint. 
+	// Therefore, DEBUG  builds are only suitable for running from within the debugger.  
+	// If you run DEBUG builds outside the debugger, you will get a GPF when an error 
+	// occurs instead of a useful error message.  If this is what you want, 
+	// define _REALLY_WANT_DEBUG and recompile.
+	//
+	// This message is here because Visual C++ sets itself to DEBUG mode when you 
+	// first load Unreal.dsw, which is probably not what you want.
+	//
+	// Always do a full recompile of 100% of the C++ code (all DLL's and EXE's) 
+	// when switching between DEBUG and RELEASE builds.  The two builds generate 
+	// the same named EXE's and DLL's, but they are not compatible.
+	//
+#endif
+
+#if !defined(_UNICODE) && !defined(_REALLY_WANT_NO_UNICODE)
+	#error "Your active configuration won't enable wide character support.  Click here for important information!"
+
+	//
+	// ** IMPORTANT INFORMATION **
+	//
+	// This game was compiled with wide character support enabled.
+	// Not enabling it will cause a plethora of compile and link errors.
+	// If you manage to get to the runtime crashes, show me what you did. --han
+	//
+	// See: https://docs.microsoft.com/en-us/cpp/text/support-for-unicode
+	//
 #endif
 
 #if defined(_NATIVE_WCHAR_T_DEFINED) && !defined(_REALLY_WANT_NATIVE_WCHAR_T_DEFINED)
-#error "Your active configuration treats wchar_t as a built-in type.  Click here for important information!"
-//
-// ** IMPORTANT INFORMATION **
-//
-// MSVC6 did not implement wchar_t as a build-in type, but used a typedef for it.
-// This behaviour is not C++ standard conform, but later MSVC versions offer 
-// the /Zc:wchar_t- compiler option for backwards compatibility. Omniting this
-// option causes compile and link errors, so you are need to change this option.
-//
-// See: https://msdn.microsoft.com/de-de/library/dh8che7s.aspx
-// 
+	#error "Your active configuration treats wchar_t as a built-in type.  Click here for important information!"
+
+	//
+	// ** IMPORTANT INFORMATION **
+	//
+	// MSVC6 did not implement wchar_t as a build-in type, but used a typedef for it.
+	// This behaviour is not C++ standard conform, but later MSVC versions offer 
+	// the /Zc:wchar_t- compiler option for backwards compatibility. Omniting this
+	// option causes compile and link errors, so you are need to change this option.
+	//
+	// See: https://docs.microsoft.com/en-us/cpp/build/reference/zc-wchar-t-wchar-t-is-native-type
+	//
+#endif
+
+#if defined(_MBCS) && !defined(_REALLY_WANT_MBCS)
+	#error "Your active configuration enables multibyte character sets.  Click here for important information!"
+
+	//
+	// ** IMPORTANT INFORMATION **
+	//
+	// This game was not compiled with multibyte character sets enabled.
+	// Enabling _MBCS will cause serious compatibility issues.
+	//
+	// See: https://docs.microsoft.com/en-us/cpp/text/support-for-multibyte-character-sets-mbcss
+	//
 #endif
 
 /*-----------------------------------------------------------------------------
@@ -44,47 +73,47 @@
 
 // Whether to turn off all checks.
 #ifndef DO_CHECK
-#define DO_CHECK 1
+	#define DO_CHECK 1
 #endif
 
 // Whether to track call-stack errors.
 #ifndef DO_GUARD
-#define DO_GUARD 1
+	#define DO_GUARD 1
 #endif
 
 // Whether to track call-stack errors in performance critical routines.
 #ifndef DO_GUARD_SLOW
-#define DO_GUARD_SLOW 1
+	#define DO_GUARD_SLOW 1
 #endif
 
 // Whether to perform CPU-intensive timing of critical loops.
 #ifndef DO_CLOCK_SLOW
-#define DO_CLOCK_SLOW 0
+	#define DO_CLOCK_SLOW 0
 #endif
 
 // Whether to gather performance statistics.
 #ifndef STATS
-#define STATS 1
+	#define STATS 1
 #endif
 
 // Whether to use Intel assembler code.
 #ifndef ASM
-#define ASM 1
+	#define ASM 1
 #endif
 
 // Whether to use 3DNow! assembler code.
 #ifndef ASM3DNOW
-#define ASM3DNOW 0
+	#define ASM3DNOW 0
 #endif
 
 // Whether to use Katmai assembler code.
 #ifndef ASMKNI
-#define ASMKNI 1
+	#define ASMKNI 1
 #endif
 
 // Demo version.
 #ifndef DEMOVERSION
-#define DEMOVERSION 0
+	#define DEMOVERSION 0
 #endif
 
 /*-----------------------------------------------------------------------------

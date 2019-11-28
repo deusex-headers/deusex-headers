@@ -330,6 +330,26 @@ public:
 	{
 		return appSqrt( X*X + Y*Y + Z*Z );
 	}
+	FLOAT SizeFast() const
+	{
+		return 1.f/appFastInvSqrt( X*X + Y*Y + Z*Z );
+	}
+	FLOAT SizeFastN0() const
+	{
+		return 1.f/appFastInvSqrtN0( X*X + Y*Y + Z*Z );
+	}
+	FLOAT SizeFastN1() const
+	{
+		return 1.f/appFastInvSqrtN1( X*X + Y*Y + Z*Z );
+	}
+	FLOAT SizeFastN2() const
+	{
+		return 1.f/appFastInvSqrtN2( X*X + Y*Y + Z*Z );
+	}
+	FLOAT SizeFastN3() const
+	{
+		return 1.f/appFastInvSqrtN3( X*X + Y*Y + Z*Z );
+	}
 	FLOAT SizeSquared() const
 	{
 		return X*X + Y*Y + Z*Z;
@@ -337,6 +357,26 @@ public:
 	FLOAT Size2D() const 
 	{
 		return appSqrt( X*X + Y*Y );
+	}
+	FLOAT Size2DFast() const 
+	{
+		return 1.f/appFastInvSqrt( X*X + Y*Y );
+	}
+	FLOAT Size2DFastN0() const 
+	{
+		return 1.f/appFastInvSqrtN0( X*X + Y*Y );
+	}
+	FLOAT Size2DFastN1() const 
+	{
+		return 1.f/appFastInvSqrtN1( X*X + Y*Y );
+	}
+	FLOAT Size2DFastN2() const 
+	{
+		return 1.f/appFastInvSqrtN2( X*X + Y*Y );
+	}
+	FLOAT Size2DFastN3() const 
+	{
+		return 1.f/appFastInvSqrtN3( X*X + Y*Y );
 	}
 	FLOAT SizeSquared2D() const 
 	{
@@ -372,6 +412,11 @@ public:
 	FVector UnsafeNormal() const
 	{
 		FLOAT Scale = 1.0/appSqrt(X*X+Y*Y+Z*Z);
+		return FVector( X*Scale, Y*Scale, Z*Scale );
+	}
+	FVector UnsafeNormalFast() const
+	{
+		FLOAT Scale = appFastInvSqrt(X*X+Y*Y+Z*Z);
 		return FVector( X*Scale, Y*Scale, Z*Scale );
 	}
 	FVector GridSnap( const FVector& Grid )

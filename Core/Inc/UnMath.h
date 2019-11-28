@@ -29,6 +29,9 @@ inline	INT Unfix	(INT A)			{return A>>16;};
 #define SMALL_NUMBER		(1.e-8f)
 #define KINDA_SMALL_NUMBER	(1.e-4f)
 
+// Magic numbers for numerical precision.
+#define DELTA			(0.00001f)
+#define SLERP_DELTA		(0.0001f)
 
 /*-----------------------------------------------------------------------------
 	Global functions.
@@ -173,6 +176,8 @@ enum EVectorFlags
 	FVF_OutFar      = 0x80, // Far clipping plane.
 	FVF_OutReject   = (FVF_OutXMin | FVF_OutXMax | FVF_OutYMin | FVF_OutYMax), // Outcode rejectable.
 	FVF_OutSkip		= (FVF_OutXMin | FVF_OutXMax | FVF_OutYMin | FVF_OutYMax), // Outcode clippable.
+
+	FVF_MAX       = 0xFF,
 };
 
 //
@@ -492,13 +497,15 @@ public:
 // An axis along which sheering is performed.
 enum ESheerAxis
 {
-	SHEER_None = 0,
-	SHEER_XY   = 1,
-	SHEER_XZ   = 2,
-	SHEER_YX   = 3,
-	SHEER_YZ   = 4,
-	SHEER_ZX   = 5,
-	SHEER_ZY   = 6,
+	SHEER_None = 0x00,
+	SHEER_XY   = 0x01,
+	SHEER_XZ   = 0x02,
+	SHEER_YX   = 0x03,
+	SHEER_YZ   = 0x04,
+	SHEER_ZX   = 0x05,
+	SHEER_ZY   = 0x06,
+
+	SHEER_MAX  = 0xFF
 };
 
 //

@@ -734,6 +734,12 @@ public:
 		return FString::Printf( TEXT("(Origin=%s,XAxis=%s,YAxis=%s,ZAxis=%s)"), *Origin.String(), *XAxis.String(), *YAxis.String(), *ZAxis.String() );
 		unguardSlow;
 	}
+
+	// Serializer.
+	friend FArchive& operator<<( FArchive& Ar, FCoords& C )
+	{
+		return Ar << C.Origin << C.XAxis << C.YAxis << C.ZAxis;
+	}
 };
 
 /*-----------------------------------------------------------------------------

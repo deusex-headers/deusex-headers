@@ -1208,10 +1208,10 @@ inline FLOAT FDistSquared2D( const FVector &V1, const FVector &V2 )
 //
 // See if two normal vectors (or plane normals) are nearly parallel.
 //
-inline int FParallel( const FVector &Normal1, const FVector &Normal2 )
+inline UBOOL FParallel( const FVector &Normal1, const FVector &Normal2 )
 {
-	FLOAT NormalDot = Normal1 | Normal2;
-	return (Abs (NormalDot - 1.f) <= THRESH_VECTORS_ARE_PARALLEL);
+	// The double abs is intended for case where the dot product is slightly larger than 1.
+	return Abs<FLOAT>(Abs<FLOAT>(Normal1|Normal2)-1.f)<=THRESH_VECTORS_ARE_PARALLEL;
 }
 
 //
@@ -1219,9 +1219,7 @@ inline int FParallel( const FVector &Normal1, const FVector &Normal2 )
 //
 inline int FCoplanar( const FVector &Base1, const FVector &Normal1, const FVector &Base2, const FVector &Normal2 )
 {
-	if      (!FParallel(Normal1,Normal2)) return 0;
-	else if (FPointPlaneDist (Base2,Base1,Normal1) > THRESH_POINT_ON_PLANE) return 0;
-	else    return 1;
+	return FParallel(Normal1,Normal2) && FPointPlaneDist(Base2,Base1,Normal1)<=THRESH_POINT_ON_PLANE;
 }
 
 //

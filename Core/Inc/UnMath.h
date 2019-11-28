@@ -20,7 +20,7 @@ class  FGlobalMath;
 
 // Fixed point conversion.
 inline	INT Fix		(INT A)			{return A<<16;};
-inline	INT Fix		(FLOAT A)		{return (INT)(A*65536.0);};
+inline	INT Fix		(FLOAT A)		{return appRound(A*65536.f);};
 inline	INT Unfix	(INT A)			{return A>>16;};
 
 // Constants.
@@ -534,9 +534,9 @@ public:
 	{}
 
 	// Functions.
-	FLOAT PlaneDot( const FVector &P ) const
+	FLOAT PlaneDot( const FVector& V ) const
 	{
-		return X*P.X + Y*P.Y + Z*P.Z - W;
+		return X*V.X + Y*V.Y + Z*V.Z - W;
 	}
 	FPlane Flip() const
 	{
@@ -816,15 +816,15 @@ public:
 	}
 	FRotator operator*( FLOAT Scale ) const
 	{
-		return FRotator( Pitch*Scale, Yaw*Scale, Roll*Scale );
+		return FRotator( appRound(Pitch*Scale), appRound(Yaw*Scale), appRound(Roll*Scale) );
 	}
 	friend FRotator operator*( FLOAT Scale, const FRotator &R )
 	{
-		return FRotator( R.Pitch*Scale, R.Yaw*Scale, R.Roll*Scale );
+		return FRotator( appRound(R.Pitch*Scale), appRound(R.Yaw*Scale), appRound(R.Roll*Scale) );
 	}
 	FRotator operator*= (FLOAT Scale)
 	{
-		Pitch = (INT)(Pitch*Scale); Yaw = (INT)(Yaw*Scale); Roll = (INT)(Roll*Scale);
+		Pitch = appRound(Pitch*Scale); Yaw = appRound(Yaw*Scale); Roll = appRound(Roll*Scale);
 		return *this;
 	}
 	// Binary comparison operators.
@@ -1032,15 +1032,15 @@ public:
 	}
 	FLOAT SinFloat( FLOAT F )
 	{
-		return SinTab((F*65536.f)/(2.f*PI));
+		return SinTab(appRound((F*65536.f)/(2.f*PI)));
 	}
 	FLOAT CosFloat( FLOAT F )
 	{
-		return CosTab((F*65536.f)/(2.f*PI));
+		return CosTab(appRound((F*65536.f)/(2.f*PI)));
 	}
 
 	// Constructor.
-	FGlobalMath();
+	CORE_API FGlobalMath();
 
 private:
 	// Tables.
@@ -1178,7 +1178,7 @@ inline FLOAT FPointPlaneDist
 //
 inline FLOAT FDist( const FVector &V1, const FVector &V2 )
 {
-	return appSqrt( Square(V2.X-V1.X) + Square(V2.Y-V1.Y) + Square(V2.Z-V1.Z) );
+	return (V2-V1).Size();
 }
 
 //
@@ -1186,7 +1186,7 @@ inline FLOAT FDist( const FVector &V1, const FVector &V2 )
 //
 inline FLOAT FDistSquared( const FVector &V1, const FVector &V2 )
 {
-	return Square(V2.X-V1.X) + Square(V2.Y-V1.Y) + Square(V2.Z-V1.Z);
+	return (V2-V1).SizeSquared();
 }
 
 //

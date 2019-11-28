@@ -1463,6 +1463,49 @@ inline FVector VRand()
 	return Result.UnsafeNormal();
 }
 
+//
+// RandomSpreadVector
+// By Paul Du Bois, Infinite Machine
+//
+// Return a random unit vector within a cone of spread_degrees.
+// (Distribution is such that there is no bunching near the axis.)
+//
+// - Create an FRotator with pitch < spread_degrees/2, yaw = 0, roll = random.
+//   The tricky bit is getting the probability distribution of pitch
+//   correct.  If it's flat, particles will tend to cluster around the pole.
+//
+// - For a given pitch phi, the probability p(phi) should be proportional to
+//   the surface area of the slice of sphere defined by that pitch and a
+//   random roll.  This is 2 pi (r sin phi) (r d phi) =~ sin phi
+//
+// - To map a flat distribution (FRand) to our new p(phi), we first find the
+//   CDF (cumulative distribution fn) which is basically the integral of
+//   p(phi) over its domain, normalized to have a total area of 1.  Smaller
+//   spreads are modeled by limiting the domain of p(phi) and normalizing
+//   the CDF for the smaller domain.  The CDF is always monotonically
+//   non-decreasing and has range [0,1].
+//
+// - The insight is that the inverse of the CDF is exactly what we need to
+//   convert a flat distribution to our p(phi).  aCDF: [0,1] -> angle.
+//   (insert handwaving argument)
+//
+// - CDF(x) = integral(0->x) sin phi d phi
+//          = -cos(x) - -cos(0)
+//          = K * (1 - cos(x)) (K is normalizing factor to make CDF(domain_max)=1)
+//        K = 1/max_cos_val   max_cos_val = (1 - cos(max pitch))
+//
+// - aCDF(y) = acos(1-y/K) = acos(1-y*max_cos_val)
+//
+inline FVector RandomSpreadVector(FLOAT spread_degrees)
+{
+    FLOAT max_pitch = Clamp(spread_degrees * (PI / 180.0f / 2.0f),0.0f,180.0f);
+    FLOAT K = 1.0f - appCos(max_pitch);
+    FLOAT pitch = appAcos(1.0f - appFrand()*K);  // this is the aCDF
+    FLOAT rand_roll = appFrand() * (2.0f * PI);
+    FLOAT radius = appSin(pitch);
+    return FVector(appCos(pitch),radius*appSin(rand_roll),radius*appCos(rand_roll));
+}
+
 /*-----------------------------------------------------------------------------
 	Advanced geometry.
 -----------------------------------------------------------------------------*/

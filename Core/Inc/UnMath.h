@@ -221,7 +221,13 @@ class FVector
 {
 public:
 	// Variables.
-	FLOAT X,Y,Z;
+	union
+	{
+		struct {FLOAT X,Y,Z;}; // Coordinates.
+		struct {FLOAT R,G,B;}; // Color components.
+		struct {FLOAT S,T,P;}; // The other thing.
+		struct {FLOAT U,V,W;}; // The other other thing.
+	};
 
 	// Constructors.
 	FVector()
@@ -448,7 +454,12 @@ class FPlane : public FVector
 {
 public:
 	// Variables.
-	FLOAT W;
+	union
+	{
+		struct {FLOAT W;};			// Coordinates.
+		struct {FLOAT A;};			// Color components.
+		struct {FLOAT Q;};			// The other thing.
+	};
 
 	// Constructors.
 	FPlane()

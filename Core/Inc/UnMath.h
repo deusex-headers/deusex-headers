@@ -183,7 +183,7 @@ enum EVectorFlags
 //
 // Floating point vector.
 //
-class CORE_API FVector 
+class FVector 
 {
 public:
 	// Variables.
@@ -376,9 +376,9 @@ public:
 	FVector MirrorByPlane( const FPlane& MirrorPlane ) const;
 
 	// Complicated functions.
-	FRotator Rotation();
-	void FindBestAxisVectors( FVector& Axis1, FVector& Axis2 );
-	FVector SafeNormal() const; //warning: Not inline because of compiler bug.
+	CORE_API FRotator Rotation();
+	CORE_API void FindBestAxisVectors( FVector& Axis1, FVector& Axis2 );
+	CORE_API FVector SafeNormal() const; //warning: Not inline because of compiler bug.
 
 	// Friends.
 	friend FLOAT FDist( const FVector& V1, const FVector& V2 );
@@ -402,7 +402,7 @@ public:
 	FPlane.
 -----------------------------------------------------------------------------*/
 
-class CORE_API FPlane : public FVector
+class FPlane : public FVector
 {
 public:
 	// Variables.
@@ -465,7 +465,7 @@ public:
 	FSphere.
 -----------------------------------------------------------------------------*/
 
-class CORE_API FSphere : public FPlane
+class FSphere : public FPlane
 {
 public:
 	// Constructors.
@@ -513,7 +513,7 @@ enum ESheerAxis
 // easily-manipulated information which is built into a transformation
 // matrix later.
 //
-class CORE_API FScale 
+class FScale 
 {
 public:
 	// Variables.
@@ -552,7 +552,7 @@ public:
 //
 // A coordinate system matrix.
 //
-class CORE_API FCoords
+class FCoords
 {
 public:
 	FVector	Origin;
@@ -570,9 +570,9 @@ public:
 	// Functions.
 	FCoords MirrorByVector( const FVector& MirrorNormal ) const;
 	FCoords MirrorByPlane( const FPlane& MirrorPlane ) const;
-	FCoords	Transpose() const;
-	FCoords Inverse() const;
-	FRotator OrthoRotation() const;
+	FCoords Transpose() const;
+	CORE_API FCoords Inverse() const;
+	CORE_API FRotator OrthoRotation() const;
 
 	// Operators.
 	FCoords& operator*=	(const FCoords   &TransformCoords);
@@ -599,7 +599,7 @@ public:
 // A model coordinate system, describing both the covariant and contravariant
 // transformation matrices to transform points and normals by.
 //
-class CORE_API FModelCoords
+class FModelCoords
 {
 public:
 	// Variables.
@@ -627,7 +627,7 @@ public:
 //
 // Rotation.
 //
-class CORE_API FRotator
+class FRotator
 {
 public:
 	// Variables.
@@ -720,7 +720,7 @@ public:
 			FSnap(Roll, RotGrid.Roll)
 		);
 	}
-	FVector Vector();
+	CORE_API FVector Vector();
 };
 
 /*-----------------------------------------------------------------------------
@@ -730,7 +730,7 @@ public:
 //
 // A rectangular minimum bounding volume.
 //
-class CORE_API FBox
+class FBox
 {
 public:
 	// Variables.
@@ -825,7 +825,7 @@ public:
 //
 // Global mathematics info.
 //
-class CORE_API FGlobalMath
+class FGlobalMath
 {
 public:
 	// Constants.

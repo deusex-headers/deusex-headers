@@ -180,6 +180,40 @@ enum EVectorFlags
 	FVF_MAX       = 0xFF,
 };
 
+inline FString appVectorFlagsString( const BYTE VectorFlags )
+{
+	guard(appVectorFlagsString);
+	if ( VectorFlags==FVF_MAX )
+		return TEXT("FVF_MAX");
+
+	BYTE Flags = VectorFlags;
+	FString Result;
+
+	if ( (Flags&FVF_OutReject)==FVF_OutReject )
+	{
+		Flags &= ~FVF_OutReject;
+
+		Result += TEXT("OutReject");
+	}
+
+	if ( Flags&FVF_OutXMin   ) { Flags &= ~FVF_OutXMin; if ( Result.Len() ) Result += TEXT("| "); Result += TEXT("OutXMin"  ); }
+	if ( Flags&FVF_OutXMax   ) { Flags &= ~FVF_OutXMax; if ( Result.Len() ) Result += TEXT("| "); Result += TEXT("OutXMax"  ); }
+	if ( Flags&FVF_OutYMin   ) { Flags &= ~FVF_OutYMin; if ( Result.Len() ) Result += TEXT("| "); Result += TEXT("OutYMin"  ); }
+	if ( Flags&FVF_OutYMax   ) { Flags &= ~FVF_OutYMax; if ( Result.Len() ) Result += TEXT("| "); Result += TEXT("OutYMax"  ); }
+	if ( Flags&FVF_OutNear   ) { Flags &= ~FVF_OutNear; if ( Result.Len() ) Result += TEXT("| "); Result += TEXT("OutNear"  ); }
+	if ( Flags&FVF_OutFar    ) { Flags &= ~FVF_OutFar;  if ( Result.Len() ) Result += TEXT("| "); Result += TEXT("OutFar"   ); }
+
+	if ( Flags )
+	{
+		if ( Result.Len() )
+			Result += TEXT("| ");
+
+		Result += FString::Printf( TEXT("0x%02X"), Flags );
+	}
+	return Result;
+	unguard;
+}
+
 //
 // Floating point vector.
 //
@@ -391,6 +425,14 @@ public:
 	friend UBOOL FParallel( const FVector& Normal1, const FVector& Normal2 );
 	friend UBOOL FCoplanar( const FVector& Base1, const FVector& Normal1, const FVector& Base2, const FVector& Normal2 );
 
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FVector::String);
+		return FString::Printf( TEXT("(X=%f,Y=%f,Z=%f)"), X, Y, Z );
+		unguardSlow;
+	}
+
 	// Serializer.
 	friend FArchive& operator<<( FArchive& Ar, FVector& V )
 	{
@@ -454,6 +496,14 @@ public:
 		return X!=V.X || Y!=V.Y || Z!=V.Z || W!=V.W;
 	}
 
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FPlane::String);
+		return FString::Printf( TEXT("(X=%f,Y=%f,Z=%f,W=%f)"), X, Y, Z, W );
+		unguardSlow;
+	}
+
 	// Serializer.
 	friend FArchive& operator<<( FArchive& Ar, FPlane &P )
 	{
@@ -488,6 +538,8 @@ public:
 		return Ar;
 		unguardSlow
 	}
+
+	// No new variables defined, so FPlane::String can be used.
 };
 
 /*-----------------------------------------------------------------------------
@@ -507,6 +559,28 @@ enum ESheerAxis
 
 	SHEER_MAX  = 0xFF
 };
+
+inline FString appSheerAxisString( const BYTE SheerAxis )
+{
+	guard(appSheerAxisString);
+	switch ( SheerAxis )
+	{
+		case SHEER_None: return TEXT("None");
+		case SHEER_XY:   return TEXT("XY");
+		case SHEER_XZ:   return TEXT("XZ");
+		case SHEER_YX:   return TEXT("YX");
+		case SHEER_YZ:   return TEXT("YZ");
+		case SHEER_ZX:   return TEXT("ZX");
+		case SHEER_ZY:   return TEXT("ZY");
+
+		// MAX.
+		case SHEER_MAX:  return TEXT("MAX");
+
+		// Unknown.
+		default:         return FString::Printf( TEXT("0x%02X"), SheerAxis );
+	}
+	unguard;
+}
 
 //
 // Scaling and sheering info associated with a brush.  This is 
@@ -542,6 +616,14 @@ public:
 	FLOAT  Orientation()
 	{
 		return Sgn(Scale.X * Scale.Y * Scale.Z);
+	}
+
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FScale::String);
+		return FString::Printf( TEXT("(Scale=%s,SheerRate=%f,SheerAxis=%s)"), *Scale.String(), SheerRate, *appSheerAxisString(SheerAxis) );
+		unguardSlow;
 	}
 };
 
@@ -589,6 +671,13 @@ public:
 	FCoords  operator/	(const FRotator  &Rot) const;
 	FCoords& operator/=	(const FScale    &Scale);
 	FCoords  operator/	(const FScale    &Scale) const;
+
+	FString String() const
+	{
+		guardSlow(FCoords::String);
+		return FString::Printf( TEXT("(Origin=%s,XAxis=%s,YAxis=%s,ZAxis=%s)"), *Origin.String(), *XAxis.String(), *YAxis.String(), *ZAxis.String() );
+		unguardSlow;
+	}
 };
 
 /*-----------------------------------------------------------------------------
@@ -617,6 +706,14 @@ public:
 	FModelCoords Inverse()
 	{
 		return FModelCoords( VectorXform.Transpose(), PointXform.Transpose() );
+	}
+
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FModelCoords::String);
+		return FString::Printf( TEXT("(PointXform=%s,VectorXform=%s)"), *PointXform.String(), *VectorXform.String() );
+		unguardSlow;
 	}
 };
 
@@ -720,7 +817,15 @@ public:
 			FSnap(Roll, RotGrid.Roll)
 		);
 	}
-	CORE_API FVector Vector();
+	FVector Vector();
+
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FRotator::String);
+		return FString::Printf( TEXT("(Pitch=%i,Yaw=%i,Roll=%i)"), Pitch, Yaw, Roll );
+		unguardSlow;
+	}
 };
 
 /*-----------------------------------------------------------------------------
@@ -809,6 +914,14 @@ public:
 	FBox ExpandBy( FLOAT W ) const
 	{
 		return FBox( Min - FVector(W,W,W), Max + FVector(W,W,W) );
+	}
+
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FBox::String);
+		return FString::Printf( TEXT("(Min=%s,Max=%s,IsValid=%i)"), *Min.String(), *Max.String(), IsValid );
+		unguardSlow;
 	}
 
 	// Serializer.

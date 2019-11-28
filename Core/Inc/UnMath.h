@@ -1190,6 +1190,22 @@ inline FLOAT FDistSquared( const FVector &V1, const FVector &V2 )
 }
 
 //
+// Euclidean distance between two points in xy plane.
+//
+inline FLOAT FDist2D( const FVector &V1, const FVector &V2 )
+{
+	return (V2-V1).Size2D();
+}
+
+//
+// Squared distance between two points in xy plane.
+//
+inline FLOAT FDistSquared2D( const FVector &V1, const FVector &V2 )
+{
+	return (V2-V1).SizeSquared2D();
+}
+
+//
 // See if two normal vectors (or plane normals) are nearly parallel.
 //
 inline int FParallel( const FVector &Normal1, const FVector &Normal2 )

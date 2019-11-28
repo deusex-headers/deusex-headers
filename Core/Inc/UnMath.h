@@ -25,9 +25,10 @@ inline	INT Unfix	(INT A)			{return A>>16;};
 
 // Constants.
 #undef  PI
-#define PI 					(3.1415926535897932)
-#define SMALL_NUMBER		(1.e-8)
-#define KINDA_SMALL_NUMBER	(1.e-4)
+#define PI 					(3.1415926535897932f)
+#define SMALL_NUMBER		(1.e-8f)
+#define KINDA_SMALL_NUMBER	(1.e-4f)
+
 
 /*-----------------------------------------------------------------------------
 	Global functions.
@@ -38,8 +39,8 @@ inline	INT Unfix	(INT A)			{return A>>16;};
 //
 inline FLOAT FSnap( FLOAT Location, FLOAT Grid )
 {
-	if( Grid==0.0 )	return Location;
-	else			return appFloor((Location + 0.5*Grid)/Grid)*Grid;
+	if( Grid==0.f )	return Location;
+	else			return appFloor((Location + 0.5f*Grid)/Grid)*Grid;
 }
 
 //
@@ -47,13 +48,13 @@ inline FLOAT FSnap( FLOAT Location, FLOAT Grid )
 //
 inline FLOAT FSheerSnap (FLOAT Sheer)
 {
-	if		(Sheer < -0.65)	return Sheer + 0.15;
-	else if (Sheer > +0.65)	return Sheer - 0.15;
-	else if (Sheer < -0.55)	return -0.50;
-	else if (Sheer > +0.55)	return 0.50;
-	else if (Sheer < -0.05)	return Sheer + 0.05;
-	else if (Sheer > +0.05)	return Sheer - 0.05;
-	else					return 0.0;
+	if		(Sheer < -0.65f) return Sheer + 0.15f;
+	else if (Sheer > +0.65f) return Sheer - 0.15f;
+	else if (Sheer < -0.55f) return -0.50f;
+	else if (Sheer > +0.55f) return 0.50f;
+	else if (Sheer < -0.05f) return Sheer + 0.05f;
+	else if (Sheer > +0.05f) return Sheer - 0.05f;
+	else					 return 0.f;
 }
 
 //
@@ -91,13 +92,13 @@ inline _WORD FAddAngleConfined( INT Angle, INT Delta, INT MinThresh, INT MaxThre
 {
 	if( Delta < 0 )
 	{
-		if ( Delta<=-0x10000L || Delta<=-(INT)((_WORD)(Angle-MinThresh)))
-			return MinThresh;
+		if( Delta<=-0x10000L || Delta<=-(INT)((_WORD)(Angle-MinThresh)))
+			return (_WORD)MinThresh;
 	}
 	else if( Delta > 0 )
 	{
 		if( Delta>=0x10000L || Delta>=(INT)((_WORD)(MaxThresh-Angle)))
-			return MaxThresh;
+			return (_WORD)MaxThresh;
 	}
 	return (_WORD)(Angle+Delta);
 }
@@ -351,16 +352,16 @@ public:
 	}
 
 	// Return a boolean that is based on the vector's direction.
-	// When      V==(0.0.0) Booleanize(0)=1.
+	// When      V==(0,0,0) Booleanize(0)=1.
 	// Otherwise Booleanize(V) <-> !Booleanize(!B).
 	UBOOL Booleanize()
 	{
 		return
-			X >  0.0 ? 1 :
-			X <  0.0 ? 0 :
-			Y >  0.0 ? 1 :
-			Y <  0.0 ? 0 :
-			Z >= 0.0 ? 1 : 0;
+			X >  0.f ? 1 :
+			X <  0.f ? 0 :
+			Y >  0.f ? 1 :
+			Y <  0.f ? 0 :
+			Z >= 0.f ? 1 : 0;
 	}
 
 	// Transformation.
@@ -849,11 +850,11 @@ public:
 	}
 	FLOAT SinFloat( FLOAT F )
 	{
-		return SinTab((F*65536)/(2.0*PI));
+		return SinTab((F*65536.f)/(2.f*PI));
 	}
 	FLOAT CosFloat( FLOAT F )
 	{
-		return CosTab((F*65536)/(2.0*PI));
+		return CosTab((F*65536.f)/(2.f*PI));
 	}
 
 	// Constructor.
@@ -879,23 +880,23 @@ inline INT ReduceAngle( INT Angle )
 // Lengths of normalized vectors (These are half their maximum values
 // to assure that dot products with normalized vectors don't overflow).
 //
-#define FLOAT_NORMAL_THRESH				(0.0001)
+#define FLOAT_NORMAL_THRESH				(0.0001f)
 
 //
 // Magic numbers for numerical precision.
 //
-#define THRESH_POINT_ON_PLANE			(0.10)		/* Thickness of plane for front/back/inside test */
-#define THRESH_POINT_ON_SIDE			(0.20)		/* Thickness of polygon side's side-plane for point-inside/outside/on side test */
-#define THRESH_POINTS_ARE_SAME			(0.002)		/* Two points are same if within this distance */
-#define THRESH_POINTS_ARE_NEAR			(0.015)		/* Two points are near if within this distance and can be combined if imprecise math is ok */
-#define THRESH_NORMALS_ARE_SAME			(0.00002)	/* Two normal points are same if within this distance */
+#define THRESH_POINT_ON_PLANE			(0.10f)		/* Thickness of plane for front/back/inside test */
+#define THRESH_POINT_ON_SIDE			(0.20f)		/* Thickness of polygon side's side-plane for point-inside/outside/on side test */
+#define THRESH_POINTS_ARE_SAME			(0.002f)	/* Two points are same if within this distance */
+#define THRESH_POINTS_ARE_NEAR			(0.015f)	/* Two points are near if within this distance and can be combined if imprecise math is ok */
+#define THRESH_NORMALS_ARE_SAME			(0.00002f)	/* Two normal points are same if within this distance */
 													/* Making this too large results in incorrect CSG classification and disaster */
-#define THRESH_VECTORS_ARE_NEAR			(0.0004)	/* Two vectors are near if within this distance and can be combined if imprecise math is ok */
+#define THRESH_VECTORS_ARE_NEAR			(0.0004f)	/* Two vectors are near if within this distance and can be combined if imprecise math is ok */
 													/* Making this too large results in lighting problems due to inaccurate texture coordinates */
-#define THRESH_SPLIT_POLY_WITH_PLANE	(0.25)		/* A plane splits a polygon in half */
-#define THRESH_SPLIT_POLY_PRECISELY		(0.01)		/* A plane exactly splits a polygon */
-#define THRESH_ZERO_NORM_SQUARED		(0.01*0.01)	/* Size of a unit normal that is considered "zero", squared */
-#define THRESH_VECTORS_ARE_PARALLEL		(0.02)		/* Vectors are parallel if dot product varies less than this */
+#define THRESH_SPLIT_POLY_WITH_PLANE	(0.25f)		/* A plane splits a polygon in half */
+#define THRESH_SPLIT_POLY_PRECISELY		(0.01f)		/* A plane exactly splits a polygon */
+#define THRESH_ZERO_NORM_SQUARED		(0.0001f)	/* Size of a unit normal that is considered "zero", squared */
+#define THRESH_VECTORS_ARE_PARALLEL		(0.02f)		/* Vectors are parallel if dot product varies less than this */
 
 /*-----------------------------------------------------------------------------
 	FVector transformation.
@@ -1296,7 +1297,7 @@ inline FLOAT FDistSquared( const FVector &V1, const FVector &V2 )
 inline int FParallel( const FVector &Normal1, const FVector &Normal2 )
 {
 	FLOAT NormalDot = Normal1 | Normal2;
-	return (Abs (NormalDot - 1.0) <= THRESH_VECTORS_ARE_PARALLEL);
+	return (Abs (NormalDot - 1.f) <= THRESH_VECTORS_ARE_PARALLEL);
 }
 
 //
@@ -1412,28 +1413,28 @@ inline FCoords& FCoords::operator*=( const FRotator &Rot )
 	// Apply yaw rotation.
 	*this *= FCoords
 	(	
-		FVector( 0.0, 0.0, 0.0 ),
-		FVector( +GMath.CosTab(Rot.Yaw), +GMath.SinTab(Rot.Yaw), +0.0 ),
-		FVector( -GMath.SinTab(Rot.Yaw), +GMath.CosTab(Rot.Yaw), +0.0 ),
-		FVector( +0.0, +0.0, +1.0 )
+		FVector( 0.f, 0.f, 0.f ),
+		FVector( +GMath.CosTab(Rot.Yaw), +GMath.SinTab(Rot.Yaw), +0.f ),
+		FVector( -GMath.SinTab(Rot.Yaw), +GMath.CosTab(Rot.Yaw), +0.f ),
+		FVector( +0.f, +0.f, +1.f )
 	);
 
 	// Apply pitch rotation.
 	*this *= FCoords
 	(	
-		FVector( 0.0, 0.0, 0.0 ),
-		FVector( +GMath.CosTab(Rot.Pitch), +0.0, +GMath.SinTab(Rot.Pitch) ),
-		FVector( +0.0, +1.0, +0.0 ),
-		FVector( -GMath.SinTab(Rot.Pitch), +0.0, +GMath.CosTab(Rot.Pitch) )
+		FVector( 0.f, 0.f, 0.f ),
+		FVector( +GMath.CosTab(Rot.Pitch), +0.f, +GMath.SinTab(Rot.Pitch) ),
+		FVector( +0.f, +1.f, +0.f ),
+		FVector( -GMath.SinTab(Rot.Pitch), +0.f, +GMath.CosTab(Rot.Pitch) )
 	);
 
 	// Apply roll rotation.
 	*this *= FCoords
 	(	
-		FVector( 0.0, 0.0, 0.0 ),
-		FVector( +1.0, +0.0, +0.0 ),
-		FVector( +0.0, +GMath.CosTab(Rot.Roll), -GMath.SinTab(Rot.Roll) ),
-		FVector( +0.0, +GMath.SinTab(Rot.Roll), +GMath.CosTab(Rot.Roll) )
+		FVector( 0.f, 0.f, 0.f ),
+		FVector( +1.f, +0.f, +0.f ),
+		FVector( +0.f, +GMath.CosTab(Rot.Roll), -GMath.SinTab(Rot.Roll) ),
+		FVector( +0.f, +GMath.SinTab(Rot.Roll), +GMath.CosTab(Rot.Roll) )
 	);
 	return *this;
 }
@@ -1460,28 +1461,28 @@ inline FCoords& FCoords::operator/=( const FRotator &Rot )
 	// Apply inverse roll rotation.
 	*this *= FCoords
 	(
-		FVector( 0.0, 0.0, 0.0 ),
-		FVector( +1.0, -0.0, +0.0 ),
-		FVector( -0.0, +GMath.CosTab(Rot.Roll), +GMath.SinTab(Rot.Roll) ),
-		FVector( +0.0, -GMath.SinTab(Rot.Roll), +GMath.CosTab(Rot.Roll) )
+		FVector( 0.f, 0.f, 0.f ),
+		FVector( +1.f, -0.f, +0.f ),
+		FVector( -0.f, +GMath.CosTab(Rot.Roll), +GMath.SinTab(Rot.Roll) ),
+		FVector( +0.f, -GMath.SinTab(Rot.Roll), +GMath.CosTab(Rot.Roll) )
 	);
 
 	// Apply inverse pitch rotation.
 	*this *= FCoords
 	(
-		FVector( 0.0, 0.0, 0.0 ),
-		FVector( +GMath.CosTab(Rot.Pitch), +0.0, -GMath.SinTab(Rot.Pitch) ),
-		FVector( +0.0, +1.0, -0.0 ),
-		FVector( +GMath.SinTab(Rot.Pitch), +0.0, +GMath.CosTab(Rot.Pitch) )
+		FVector( 0.f, 0.f, 0.f ),
+		FVector( +GMath.CosTab(Rot.Pitch), +0.f, -GMath.SinTab(Rot.Pitch) ),
+		FVector( +0.f, +1.f, -0.f ),
+		FVector( +GMath.SinTab(Rot.Pitch), +0.f, +GMath.CosTab(Rot.Pitch) )
 	);
 
 	// Apply inverse yaw rotation.
 	*this *= FCoords
 	(
-		FVector( 0.0, 0.0, 0.0 ),
-		FVector( +GMath.CosTab(Rot.Yaw), -GMath.SinTab(Rot.Yaw), -0.0 ),
-		FVector( +GMath.SinTab(Rot.Yaw), +GMath.CosTab(Rot.Yaw), +0.0 ),
-		FVector( -0.0, +0.0, +1.0 )
+		FVector( 0.f, 0.f, 0.f ),
+		FVector( +GMath.CosTab(Rot.Yaw), -GMath.SinTab(Rot.Yaw), -0.f ),
+		FVector( +GMath.SinTab(Rot.Yaw), +GMath.CosTab(Rot.Yaw), +0.f ),
+		FVector( -0.f, +0.f, +1.f )
 	);
 	return *this;
 }
@@ -1622,7 +1623,7 @@ inline FVector VRand()
 		Result.X = appFrand()*2 - 1;
 		Result.Y = appFrand()*2 - 1;
 		Result.Z = appFrand()*2 - 1;
-	} while( Result.SizeSquared() > 1.0 );
+	} while( Result.SizeSquared() > 1.f );
 	return Result.UnsafeNormal();
 }
 
@@ -1675,7 +1676,7 @@ inline UBOOL FIntersectPlanes3( FVector& I, const FPlane& P1, const FPlane& P2, 
 
 	// Compute determinant, the triple product P1|(P2^P3)==(P1^P2)|P3.
 	FLOAT Det = (P1 ^ P2) | P3;
-	if( Square(Det) < Square(0.001) )
+	if ( Square<FLOAT>(Det)<Square<FLOAT>(0.001f) )
 	{
 		// Degenerate.
 		I = FVector(0,0,0);
@@ -1701,7 +1702,7 @@ inline UBOOL FIntersectPlanes2( FVector& I, FVector& D, const FPlane& P1, const 
 	// Compute line direction, perpendicular to both plane normals.
 	D = P1 ^ P2;
 	FLOAT DD = D.SizeSquared();
-	if( DD < Square(0.001) )
+	if ( DD<Square<FLOAT>(0.001f) )
 	{
 		// Parallel or nearly parallel planes.
 		D = I = FVector(0,0,0);

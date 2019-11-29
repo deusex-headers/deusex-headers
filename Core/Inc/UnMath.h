@@ -416,6 +416,14 @@ public:
 	{
 		return (&X)[Index];
 	}
+	UBOOL IsNan() const
+	{
+		return appIsNan(X) || appIsNan(Y) || appIsNan(Z);
+	}
+	UBOOL IsFinite() const
+	{
+		return appIsFinite(X) && appIsFinite(Y) && appIsFinite(Z);
+	}
 
 	// Return a boolean that is based on the vector's direction.
 	// When      V==(0,0,0) Booleanize(0)=1.
@@ -528,6 +536,14 @@ public:
 	FPlane Flip() const
 	{
 		return FPlane( -X, -Y, -Z, -W );
+	}
+	UBOOL IsNan() const
+	{
+		return FVector::IsNan() || appIsNan(W);
+	}
+	UBOOL IsFinite() const
+	{
+		return FVector::IsFinite(X) && appIsFinite(W);
 	}
 	FPlane TransformPlaneByOrtho( const FCoords &Coords ) const;
 
@@ -652,6 +668,14 @@ public:
 	{
 		return Sgn( Scale.X*Scale.Y*Scale.Z );
 	}
+	UBOOL IsNan() const
+	{
+		return PointXform::IsNan() || VectorXform::IsNan();
+	}
+	UBOOL IsFinite() const
+	{
+		return PointXform::IsFinite() && VectorXform::IsFinite();
+	}
 
 	// Serializer.
 	friend FArchive& operator<<( FArchive& Ar, FScale &S )
@@ -700,6 +724,14 @@ public:
 	{}
 
 	// Functions.
+	UBOOL IsNan() const
+	{
+		return Origin::IsNan() || XAxis::IsNan() || YAxis::IsNan() || ZAxis::IsNan();
+	}
+	UBOOL IsFinite() const
+	{
+		return Origin::IsFinite() && XAxis::IsFinite() && YAxis::IsFinite() && ZAxis::IsFinite();
+	}
 	FCoords MirrorByVector( const FVector& MirrorNormal ) const;
 	FCoords MirrorByPlane( const FPlane& MirrorPlane ) const;
 	FCoords Transpose() const;
@@ -762,6 +794,14 @@ public:
 	{}
 
 	// Functions.
+	UBOOL IsNan() const
+	{
+		return PointXform::IsNan() || VectorXform::IsNan();
+	}
+	UBOOL IsFinite() const
+	{
+		return PointXform::IsFinite() && VectorXform::IsFinite();
+	}
 	FModelCoords Inverse()
 	{
 		return FModelCoords( VectorXform.Transpose(), PointXform.Transpose() );
@@ -993,6 +1033,14 @@ public:
 	{
 		return FBox( Min-FVector(W,W,W), Max+FVector(W,W,W) );
 	}
+	UBOOL IsNan() const
+	{
+		return Min::IsNan() || Max::IsNan();
+	}
+	UBOOL IsFinite() const
+	{
+		return Min::IsFinite() && Max::IsFinite();
+	}
 
 	// Serializer.
 	friend FArchive& operator<<( FArchive& Ar, FBox& Bound )
@@ -1056,6 +1104,32 @@ public:
 	FLOAT CosFloat( FLOAT F )
 	{
 		return CosTab(appRound((F*65536.f)/(2.f*PI)));
+	}
+	UBOOL IsNan() const
+	{
+		for ( INT iTrigFLOAT; iTrigFLOAT<ARRAY_COUNT(TrigFLOAT); iTrigFLOAT++ )
+			if ( appIsNan(TrigFLOAT[iTrigFLOAT]) )
+				return 1;
+		for ( INT iSqrtFLOAT; SqrtFLOAT<ARRAY_COUNT(SqrtFLOAT); iSqrtFLOAT++ )
+			if ( appIsNan(SqrtFLOAT[iSqrtFLOAT]) )
+				return 1;
+		for ( INT iLightSqrtFLOAT; iLightSqrtFLOAT<ARRAY_COUNT(LightSqrtFLOAT); iLightSqrtFLOAT++ )
+			if ( appIsNan(LightSqrtFLOAT[iLightSqrtFLOAT]) )
+				return 1;
+		return 0;
+	}
+	UBOOL IsFinite() const
+	{
+		for ( INT iTrigFLOAT; iTrigFLOAT<ARRAY_COUNT(TrigFLOAT); iTrigFLOAT++ )
+			if ( !appIsFinite(TrigFLOAT[iTrigFLOAT]) )
+				return 0;
+		for ( INT iSqrtFLOAT; SqrtFLOAT<ARRAY_COUNT(SqrtFLOAT); iSqrtFLOAT++ )
+			if ( !appIsFinite(SqrtFLOAT[iSqrtFLOAT]) )
+				return 0;
+		for ( INT iLightSqrtFLOAT; iLightSqrtFLOAT<ARRAY_COUNT(LightSqrtFLOAT); iLightSqrtFLOAT++ )
+			if ( !appIsFinite(LightSqrtFLOAT[iLightSqrtFLOAT]) )
+				return 0;
+		return 1;
 	}
 
 private:

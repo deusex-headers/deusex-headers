@@ -425,6 +425,15 @@ public:
 		return appIsFinite(X) && appIsFinite(Y) && appIsFinite(Z);
 	}
 
+	FVector ComponentMin( FVector V )
+	{
+		return FVector( Min<FLOAT>(V.X,X), Min<FLOAT>(V.Y,Y), Min<FLOAT>(V.Z,Z) );
+	}
+	FVector ComponentMax( FVector V )
+	{
+		return FVector( Max<FLOAT>(V.X,X), Max<FLOAT>(V.Y,Y), Max<FLOAT>(V.Z,Z) );
+	}
+
 	// Return a boolean that is based on the vector's direction.
 	// When      V==(0,0,0) Booleanize(0)=1.
 	// Otherwise Booleanize(V) <-> !Booleanize(!B).
@@ -443,6 +452,8 @@ public:
 	FVector TransformPointBy( const FCoords& Coords ) const;
 	FVector MirrorByVector( const FVector& MirrorNormal ) const;
 	FVector MirrorByPlane( const FPlane& MirrorPlane ) const;
+	FVector PivotTransformVectorBy( const FCoords& Coords ) const;
+	//FVector PivotTransform( const FCoords& Coords ) const;
 
 	// Complicated functions.
 	CORE_API FRotator Rotation();
@@ -453,10 +464,10 @@ public:
 	friend FLOAT FDist( const FVector& V1, const FVector& V2 );
 	friend FLOAT FDistSquared( const FVector& V1, const FVector& V2 );
 	friend UBOOL FPointsAreSame( const FVector& P, const FVector& Q );
-	friend UBOOL FPointsAreNear( const FVector& Point1, const FVector& Point2, FLOAT Dist);
+	friend UBOOL FPointsAreNear( const FVector& P, const FVector& Q, FLOAT Dist);
 	friend FLOAT FPointPlaneDist( const FVector& Point, const FVector& PlaneBase, const FVector& PlaneNormal );
-	friend FVector FLinePlaneIntersection( const FVector& Point1, const FVector& Point2, const FVector& PlaneOrigin, const FVector& PlaneNormal );
-	friend FVector FLinePlaneIntersection( const FVector& Point1, const FVector& Point2, const FPlane& Plane );
+	friend FVector FLinePlaneIntersection( const FVector& P, const FVector& Q, const FVector& PlaneOrigin, const FVector& PlaneNormal );
+	friend FVector FLinePlaneIntersection( const FVector& P, const FVector& Q, const FPlane& Plane );
 	friend UBOOL FParallel( const FVector& Normal1, const FVector& Normal2 );
 	friend UBOOL FCoplanar( const FVector& Base1, const FVector& Normal1, const FVector& Base2, const FVector& Normal2 );
 
@@ -1184,6 +1195,23 @@ inline FVector FVector::TransformPointBy( const FCoords &Coords ) const
 	FVector Temp = *this-Coords.Origin;
 	return FVector(	Temp|Coords.XAxis, Temp|Coords.YAxis, Temp|Coords.ZAxis );
 }
+
+//
+// Apply 'pivot' transform: First rotate, then add the translation.
+//
+inline FVector FVector::PivotTransformPointBy( const FCoords& Coords ) const
+{
+	FVector Temp( *this|Coords.XAxis, *this|Coords.YAxis, *this|Coords.ZAxis);
+	return Temp-Coords.Origin;
+}
+
+//
+// Odd duckling, as this adds and not Substracts the origin.
+//
+//inline FVector FVector::PivotTransform( const FCoords& Coords ) const
+//{
+//	return *this.PivotTransformPointBy( FCoords(-Coords.Origin,Coords.XAxis,Coords.YAxis,Coords.ZAxis) );
+//}
 
 //
 // Transform a directional vector by a coordinate system.

@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/deusex-headers/Core.git
 	branch = master
-	commit = d9d16d7423beecc2192bae688bdd2c1b61efa576
-	parent = 2aa8054b3b6f0de11de42509ff4978b36be1486c
+	commit = 7c2d10aded2609ff2972f9e4419919555a4d3410
+	parent = cc7d5fb758f884fd0f025dfa8cd44d147009bc26
 	method = merge
 	cmdver = 0.4.0

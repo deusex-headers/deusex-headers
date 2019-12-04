@@ -31,4 +31,4 @@
 
 This is a somewhat sticky topic, the Deus Ex SDK license is specifically tailored towards modifications of "maps". I can be found in the file Help/Licenses/DeusExSDK.md. I'll leave it as an exercise to the reader to sort it out.
 
-I'll license my changes under the MIT License. It can be found inside Help/Licenses/DeusExHeaders.md.
+I'll license my changes under the MIT License. It can be found inside Help/Licenses/LaunchBagHeaders.md.

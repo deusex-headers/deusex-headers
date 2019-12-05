@@ -428,19 +428,37 @@ CORE_API UBOOL ParseParam( const TCHAR* Stream, const TCHAR* Param );
 	Math functions.
 -----------------------------------------------------------------------------*/
 
-CORE_API DOUBLE appExp( DOUBLE Value );
-CORE_API DOUBLE appLoge( DOUBLE Value );
-CORE_API DOUBLE appFmod( DOUBLE A, DOUBLE B );
-CORE_API DOUBLE appSin( DOUBLE Value );
-CORE_API DOUBLE appCos( DOUBLE Value );
-CORE_API DOUBLE appTan( DOUBLE Value );
-CORE_API DOUBLE appAtan( DOUBLE Value );
-CORE_API DOUBLE appAtan2( DOUBLE Y, DOUBLE X );
-CORE_API DOUBLE appSqrt( DOUBLE Value );
-CORE_API DOUBLE appPow( DOUBLE A, DOUBLE B );
-CORE_API UBOOL appIsNan( DOUBLE Value );
+// So newer compilers in theory could do a better job.
+#if __REALLY_WANT_UNFILE_MATH || 1
+	CORE_API DOUBLE appExp( DOUBLE Value );
+	CORE_API DOUBLE appLoge( DOUBLE Value );
+	CORE_API DOUBLE appFmod( DOUBLE A, DOUBLE B );
+	CORE_API DOUBLE appSin( DOUBLE Value );
+	CORE_API DOUBLE appCos( DOUBLE Value );
+	CORE_API DOUBLE appTan( DOUBLE Value );
+	CORE_API DOUBLE appAtan( DOUBLE Value );
+	CORE_API DOUBLE appAtan2( DOUBLE Y, DOUBLE X );
+	CORE_API DOUBLE appSqrt( DOUBLE Value );
+	CORE_API DOUBLE appPow( DOUBLE A, DOUBLE B );
+#else
+	#define appExp(x)     exp(x)
+	#define appLoge(x)    log(x)
+	#define appFmod(a,b)  fmod(a,b)
+	#define appSin(x)     sin(x)
+	#define appCos(x)     cos(x)
+	#define appTan(x)     tan(x)
+	#define appAtan(x)    atan(x)
+	#define appAtan2(y,x) atan2(y,x)
+	#define appSqrt(x)    sqrt(x)
+	#define appPow(a,b)   pow(a,b)
+#endif
+
 CORE_API INT appRand();
 CORE_API FLOAT appFrand();
+
+#ifndef DEFINED_appIsNan
+CORE_API UBOOL appIsNan( DOUBLE Value );
+#endif
 
 #if !DEFINED_appRound
 CORE_API INT appRound( FLOAT Value );
@@ -452,6 +470,22 @@ CORE_API INT appFloor( FLOAT Value );
 
 #if !DEFINED_appCeil
 CORE_API INT appCeil( FLOAT Value );
+#endif
+
+/*-----------------------------------------------------------------------------
+	Math functions implemented inside CoreI.
+-----------------------------------------------------------------------------*/
+
+#if !DEFINED_appIsFinite
+COREI_API appIsFinite( DOUBLE Value );
+#endif
+
+#if __REALLY_WANT_UNFILEI_MATH || 1
+	COREI_API DOUBLE appAcos( DOUBLE Value );
+	COREI_API DOUBLE appAsin( DOUBLE Value );
+#else
+	#define appAcos(x) acos(x)
+	#define appAsin(x) asin(x)
 #endif
 
 /*------------------------------------------------------------------------------------

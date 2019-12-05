@@ -276,7 +276,7 @@ public:
 
 		return *this;
 	}
-	FVector operator/=( FLOAT V )
+	FVector operator/=( FLOAT Scale )
 	{
 		X /= Scale;
 		Y /= Scale;
@@ -452,7 +452,7 @@ public:
 	FVector TransformPointBy( const FCoords& Coords ) const;
 	FVector MirrorByVector( const FVector& MirrorNormal ) const;
 	FVector MirrorByPlane( const FPlane& MirrorPlane ) const;
-	FVector PivotTransformVectorBy( const FCoords& Coords ) const;
+	FVector PivotTransformPointBy( const FCoords& Coords ) const;
 	//FVector PivotTransform( const FCoords& Coords ) const;
 
 	// Complicated functions.
@@ -554,7 +554,7 @@ public:
 	}
 	UBOOL IsFinite() const
 	{
-		return FVector::IsFinite(X) && appIsFinite(W);
+		return FVector::IsFinite() && appIsFinite(W);
 	}
 	FPlane TransformPlaneByOrtho( const FCoords &Coords ) const;
 
@@ -681,11 +681,11 @@ public:
 	}
 	UBOOL IsNan() const
 	{
-		return PointXform::IsNan() || VectorXform::IsNan();
+		return Scale.IsNan() || appIsNan(SheerRate); // Should I check for valid SheerAxis?
 	}
 	UBOOL IsFinite() const
 	{
-		return PointXform::IsFinite() && VectorXform::IsFinite();
+		return Scale.IsFinite() && appIsFinite(SheerRate);
 	}
 
 	// Serializer.
@@ -737,11 +737,11 @@ public:
 	// Functions.
 	UBOOL IsNan() const
 	{
-		return Origin::IsNan() || XAxis::IsNan() || YAxis::IsNan() || ZAxis::IsNan();
+		return Origin.IsNan() || XAxis.IsNan() || YAxis.IsNan() || ZAxis.IsNan();
 	}
 	UBOOL IsFinite() const
 	{
-		return Origin::IsFinite() && XAxis::IsFinite() && YAxis::IsFinite() && ZAxis::IsFinite();
+		return Origin.IsFinite() && XAxis.IsFinite() && YAxis.IsFinite() && ZAxis.IsFinite();
 	}
 	FCoords MirrorByVector( const FVector& MirrorNormal ) const;
 	FCoords MirrorByPlane( const FPlane& MirrorPlane ) const;
@@ -807,11 +807,11 @@ public:
 	// Functions.
 	UBOOL IsNan() const
 	{
-		return PointXform::IsNan() || VectorXform::IsNan();
+		return PointXform.IsNan() || VectorXform.IsNan();
 	}
 	UBOOL IsFinite() const
 	{
-		return PointXform::IsFinite() && VectorXform::IsFinite();
+		return PointXform.IsFinite() && VectorXform.IsFinite();
 	}
 	FModelCoords Inverse()
 	{
@@ -900,7 +900,7 @@ public:
 	}
 	int IsZero() const
 	{
-		return ((Pitch|Yaw|Roll)&65535)==0);
+		return ((Pitch|Yaw|Roll)&65535)==0;
 	}
 	FRotator Add( INT DeltaPitch, INT DeltaYaw, INT DeltaRoll )
 	{
@@ -1046,11 +1046,11 @@ public:
 	}
 	UBOOL IsNan() const
 	{
-		return Min::IsNan() || Max::IsNan();
+		return Min.IsNan() || Max.IsNan();
 	}
 	UBOOL IsFinite() const
 	{
-		return Min::IsFinite() && Max::IsFinite();
+		return Min.IsFinite() && Max.IsFinite();
 	}
 
 	// Serializer.
@@ -1121,7 +1121,7 @@ public:
 		for ( INT iTrigFLOAT; iTrigFLOAT<ARRAY_COUNT(TrigFLOAT); iTrigFLOAT++ )
 			if ( appIsNan(TrigFLOAT[iTrigFLOAT]) )
 				return 1;
-		for ( INT iSqrtFLOAT; SqrtFLOAT<ARRAY_COUNT(SqrtFLOAT); iSqrtFLOAT++ )
+		for ( INT iSqrtFLOAT; iSqrtFLOAT<ARRAY_COUNT(SqrtFLOAT); iSqrtFLOAT++ )
 			if ( appIsNan(SqrtFLOAT[iSqrtFLOAT]) )
 				return 1;
 		for ( INT iLightSqrtFLOAT; iLightSqrtFLOAT<ARRAY_COUNT(LightSqrtFLOAT); iLightSqrtFLOAT++ )
@@ -1134,7 +1134,7 @@ public:
 		for ( INT iTrigFLOAT; iTrigFLOAT<ARRAY_COUNT(TrigFLOAT); iTrigFLOAT++ )
 			if ( !appIsFinite(TrigFLOAT[iTrigFLOAT]) )
 				return 0;
-		for ( INT iSqrtFLOAT; SqrtFLOAT<ARRAY_COUNT(SqrtFLOAT); iSqrtFLOAT++ )
+		for ( INT iSqrtFLOAT; iSqrtFLOAT<ARRAY_COUNT(SqrtFLOAT); iSqrtFLOAT++ )
 			if ( !appIsFinite(SqrtFLOAT[iSqrtFLOAT]) )
 				return 0;
 		for ( INT iLightSqrtFLOAT; iLightSqrtFLOAT<ARRAY_COUNT(LightSqrtFLOAT); iLightSqrtFLOAT++ )
@@ -1250,7 +1250,6 @@ inline FVector FVector::MirrorByPlane( const FPlane& Plane ) const
 //
 inline UBOOL FPointsAreNear( const FVector& P, const FVector& Q, FLOAT Dist )
 {
-	FLOAT Temp;
 	if (Abs<FLOAT>(P.X-Q.X)>=Dist) return 0;
 	if (Abs<FLOAT>(P.Y-Q.Y)>=Dist) return 0;
 	if (Abs<FLOAT>(P.Z-Q.Z)>=Dist) return 0;
@@ -1263,7 +1262,7 @@ inline UBOOL FPointsAreNear( const FVector& P, const FVector& Q, FLOAT Dist )
 //
 inline UBOOL FPointsAreSame( const FVector& P, const FVector& Q )
 {
-	return FPointsAreNear( P, Q, THRESH_POINTS_ARE_SAME )
+	return FPointsAreNear( P, Q, THRESH_POINTS_ARE_SAME );
 }
 
 //
@@ -1337,7 +1336,7 @@ inline FLOAT FTriple( const FVector& X, const FVector& Y, const FVector& Z )
 //
 inline FLOAT FVolume( const FVector& X, const FVector& Y, const FVector& Z )
 {
-	return Abs<FLOAT>(FTriple);
+	return Abs<FLOAT>(FTriple(X,Y,Z));
 }
 
 /*-----------------------------------------------------------------------------
@@ -1682,7 +1681,8 @@ inline FVector VRand()
 //
 // - aCDF(y) = acos(1-y/K) = acos(1-y*max_cos_val)
 //
-inline FVector RandomSpreadVector( FLOAT SpreadDegrees )
+#if 0
+inline FVector appRandomSpreadVector( FLOAT SpreadDegrees )
 {
 	FLOAT MaxPitch = Clamp<FLOAT>( SpreadDegrees*(PI/180.0f/2.0f), 0.0f , 180.0f );
 	FLOAT K        = 1.0f-appCos(MaxPitch);
@@ -1697,6 +1697,7 @@ inline FVector RandomSpreadVector( FLOAT SpreadDegrees )
 		Radius*appCos(RandRoll)
 	);
 }
+#endif
 
 /*-----------------------------------------------------------------------------
 	Advanced geometry.

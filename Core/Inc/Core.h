@@ -15,7 +15,12 @@
 
 // API definition.
 #ifndef CORE_API
-#define CORE_API DLL_IMPORT
+	#define CORE_API DLL_IMPORT
+#endif
+
+// Needed here, as I need to make use of a few functions inside UnMath.h
+#ifndef COREI_API
+	#define COREI_API DLL_IMPORT
 #endif
 
 // Build options.

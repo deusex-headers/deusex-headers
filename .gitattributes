@@ -1,0 +1,50 @@
+# Enforce some common default.
+* text=auto
+
+# Mark workspace and project files as crlf text.
+*.dsp text eol=crlf
+*.dsw text eol=crlf
+*.sln text eol=crlf
+*.vcproj text eol=crlf
+
+# Mark substance files as lf
+*.sbs text eol=lf
+
+# Mark source files as crlf text.
+*.c text eol=crlf
+*.cpp text eol=crlf
+*.h text eol=crlf
+*.rc text=crlf
+*.uc text eol=crlf
+
+# Mark some script/markup files as crlf.
+*.upkg text eol=crlf
+*.bat text eol=crlf
+
+# Mark localization files as crlf text.
+*.int text eol=crlf
+*.det text eol=crlf
+*.itt text eol=crlf
+*.frt text eol=crlf
+
+# Mark Unreal Package as binary.
+*.u binary
+*.utx binary
+*.uax binary
+*.umx binary
+*.unr binary
+*.nrf binary
+*.dx binary
+
+# These shouldn't be checked in though.
+*.uxx binary
+*.nsg binary
+*.dxs binary
+
+# Mark common texture and sound formats as binary
+*.pcx binary
+*.bmp binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.ico binary

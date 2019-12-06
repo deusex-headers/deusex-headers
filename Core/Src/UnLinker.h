@@ -100,8 +100,10 @@ struct CORE_API FObjectImport
 	,	SourceLinker	( NULL									 )
 	,	SourceIndex		( INDEX_NONE							 )
 	{
+#if DEUS_EX
 			if( XObject )
 				UObject::GImportCount++;
+#endif
 	}
 	friend FArchive& operator<<( FArchive& Ar, FObjectImport& I )
 	{
@@ -639,7 +641,9 @@ class ULinkerLoad : public ULinker, public FArchive
 					&&	(FindObject->GetFlags() & RF_Transient) )
 					{
 						Import.XObject = FindObject;
+#if DEUS_EX
 						GImportCount++;
+#endif
 					}
 					else if( FindClass->ClassFlags & CLASS_SafeReplace )
 					{
@@ -715,15 +719,15 @@ class ULinkerLoad : public ULinker, public FArchive
 	}
 
 	// Create a single object.
-	UObject* Create( UClass* ObjectClass, FName ObjectName, DWORD LoadFlags, UBOOL Checked )
+	UObject* Create( UClass* ObjectClass, FName ObjectName, DWORD CreateLoadFlags, UBOOL Checked )
 	{
 		guard(ULinkerLoad::Create);
 		//old:
 		//for( INT i=0; i<ExportMap.Num(); i++ )
 		//new:
-		INT Index = FindExportIndex( ObjectClass->GetFName(), ObjectClass->GetOuter()->GetFName(), ObjectName, INDEX_NONE );
-		if( Index!=INDEX_NONE )
-			return (LoadFlags & LOAD_Verify) ? (UObject*)-1 : CreateExport(Index);
+		INT ExportIndex = FindExportIndex( ObjectClass->GetFName(), ObjectClass->GetOuter()->GetFName(), ObjectName, INDEX_NONE );
+		if( ExportIndex!=INDEX_NONE )
+			return (CreateLoadFlags & LOAD_Verify) ? (UObject*)-1 : CreateExport(ExportIndex);
 		if( Checked )
 			appThrowf( LocalizeError("FailedCreate"), ObjectClass->GetName(), *ObjectName );
 		return NULL;
@@ -781,12 +785,12 @@ class ULinkerLoad : public ULinker, public FArchive
 
 private:
 	// Return the loaded object corresponding to an export index; any errors are fatal.
-	UObject* CreateExport( INT Index )
+	UObject* CreateExport( INT ExportIndex )
 	{
 		guard(ULinkerLoad::CreateExport);
 
 		// Map the object into our table.
-		FObjectExport& Export = ExportMap( Index );
+		FObjectExport& Export = ExportMap( ExportIndex );
 		if( !Export._Object && (Export.ObjectFlags & _ContextFlags) )
 		{
 			check(Export.ObjectName!=NAME_None || !(Export.ObjectFlags&RF_Public));
@@ -823,7 +827,7 @@ private:
 				Export.ObjectName,
 				(Export.ObjectFlags & RF_Load) | RF_NeedLoad | RF_NeedPostLoad
 			);
-			Export._Object->SetLinker( this, Index );
+			Export._Object->SetLinker( this, ExportIndex );
 			GObjLoaded.AddItem( Export._Object );
 			debugfSlow( NAME_DevLoad, TEXT("Created %s"), Export._Object->GetFullName() );
 
@@ -836,40 +840,42 @@ private:
 				((UClass*)Export._Object)->Bind();
 		}
 		return Export._Object;
-		unguardf(( TEXT("(%s %i)"), *ExportMap(Index).ObjectName, Tell() ));
+		unguardf(( TEXT("(%s %i)"), *ExportMap(ExportIndex).ObjectName, Tell() ));
 	}
 
 	// Return the loaded object corresponding to an import index; any errors are fatal.
-	UObject* CreateImport( INT Index )
+	UObject* CreateImport( INT ImportIndex )
 	{
 		guard(ULinkerLoad::CreateImport);
-		FObjectImport& Import = ImportMap( Index );
+		FObjectImport& Import = ImportMap( ImportIndex );
 		if( !Import.XObject && Import.SourceIndex>=0 )
 		{
 			//debugf( "Imported new %s %s.%s", *Import.ClassName, *Import.ObjectPackage, *Import.ObjectName );
 			check(Import.SourceLinker);
 			Import.XObject = Import.SourceLinker->CreateExport( Import.SourceIndex );
+#if DEUS_EX
 			GImportCount++;
+#endif
 		}
 		return Import.XObject;
 		unguard;
 	}
 
 	// Map an import/export index to an object; all errors here are fatal.
-	UObject* IndexToObject( INT Index )
+	UObject* IndexToObject( INT ObjectIndex )
 	{
 		guard(IndexToObject);
-		if( Index > 0 )
+		if( ObjectIndex > 0 )
 		{
-			if( !ExportMap.IsValidIndex( Index-1 ) )
-				appErrorf( LocalizeError("ExportIndex"), Index-1, ExportMap.Num() );			
-			return CreateExport( Index-1 );
+			if( !ExportMap.IsValidIndex( ObjectIndex-1 ) )
+				appErrorf( LocalizeError("ExportIndex"), ObjectIndex-1, ExportMap.Num() );			
+			return CreateExport( ObjectIndex-1 );
 		}
-		else if( Index < 0 )
+		else if( ObjectIndex < 0 )
 		{
-			if( !ImportMap.IsValidIndex( -Index-1 ) )
-				appErrorf( LocalizeError("ImportIndex"), -Index-1, ImportMap.Num() );
-			return CreateImport( -Index-1 );
+			if( !ImportMap.IsValidIndex( -ObjectIndex-1 ) )
+				appErrorf( LocalizeError("ImportIndex"), -ObjectIndex-1, ImportMap.Num() );
+			return CreateImport( -ObjectIndex-1 );
 		}
 		else return NULL;
 		unguard;
@@ -994,14 +1000,14 @@ private:
 	{
 		guard(ULinkerLoad<<UObject);
 
-		INT Index;
-		*Loader << AR_INDEX(Index);
-		Object = IndexToObject( Index );
+		INT ObjectIndex;
+		*Loader << AR_INDEX(ObjectIndex);
+		Object = IndexToObject( ObjectIndex );
 
 		return *this;
 		unguardf(( TEXT("(%s %i))"), GetFullName(), Tell() ));
 	}
-	FArchive& operator<<( FName& Name )
+	FArchive& operator<<( FName& N )
 	{
 		guard(ULinkerLoad<<FName);
 
@@ -1010,7 +1016,7 @@ private:
 
 		if( !NameMap.IsValidIndex(NameIndex) )
 			appErrorf( TEXT("Bad name index %i/%i"), NameIndex, NameMap.Num() );	
-		Name = NameMap( NameIndex );
+		N = NameMap( NameIndex );
 
 		return *this;
 		unguardf(( TEXT("(%s %i))"), GetFullName(), Tell() ));
@@ -1079,10 +1085,10 @@ class ULinkerSave : public ULinker, public FArchive
 	}
 
 	// FArchive interface.
-	INT MapName( FName* Name )
+	INT MapName( FName* N )
 	{
 		guardSlow(ULinkerSave::MapName);
-		return NameIndices(Name->GetIndex());
+		return NameIndices(N->GetIndex());
 		unguardobjSlow;
 	}
 	INT MapObject( UObject* Object )
@@ -1093,10 +1099,10 @@ class ULinkerSave : public ULinker, public FArchive
 	}
 
 	// FArchive interface.
-	FArchive& operator<<( FName& Name )
+	FArchive& operator<<( FName& N )
 	{
 		guardSlow(ULinkerSave<<FName);
-		INT Save = NameIndices(Name.GetIndex());
+		INT Save = NameIndices(N.GetIndex());
 		return *this << AR_INDEX(Save);
 		unguardobjSlow;
 	}

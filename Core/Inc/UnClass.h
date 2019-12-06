@@ -134,9 +134,10 @@ class CORE_API UField : public UObject
 template <class T> class TFieldIterator
 {
 public:
-	TFieldIterator( UStruct* InStruct )
+	TFieldIterator( UStruct* InStruct, UBOOL InTraverseToSuper=1 )
 	: Struct( InStruct )
 	, Field( InStruct ? InStruct->Children : NULL )
+	, TraverseToSuper( InTraverseToSuper )
 	{
 		IterateToNext();
 	}
@@ -175,13 +176,14 @@ protected:
 					return;
 				Field = Field->Next;
 			}
-			Struct = Struct->GetInheritanceSuper();
+			Struct = TraverseToSuper ? Struct->GetInheritanceSuper() : NULL;
 			if( Struct )
 				Field = Struct->Children;
 		}
 	}
 	UStruct* Struct;
 	UField* Field;
+	UBOOL TraverseToSuper;
 };
 
 /*-----------------------------------------------------------------------------

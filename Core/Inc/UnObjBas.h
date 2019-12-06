@@ -49,6 +49,7 @@ enum ENativeConstructor    { EC_NativeConstructor   };
 enum EInternal             { EC_Internal            };
 enum ECppProperty          { EC_CppProperty         };
 enum EInPlaceConstructor   { EC_InPlaceConstructor  };
+enum ESkipConstructorHack  { EC_SkipConstructorHack };
 
 //
 // Result of GotoState.
@@ -1040,10 +1041,10 @@ inline const TCHAR* ObjectPathName( const UObject* Object )
 	return Object->GetPathName();
 }
 
-inline const TCHAR* ObjectFullName( const UObject* Object )
+inline const TCHAR* ObjectFullName( const UObject* Object, UBOOL DoubleNone=0 )
 {
 	if ( !Object )
-		return TEXT("None None");
+		return DoubleNone ? TEXT("None None") : TEXT("None");
 	return Object->GetFullName();
 }
 

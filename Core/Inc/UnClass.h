@@ -196,6 +196,9 @@ class CORE_API UStruct : public UField
 	DECLARE_CLASS(UStruct,UField,0)
 	NO_DEFAULT_CONSTRUCTOR(UStruct)
 
+	// Friends.
+	#include "Friends/UStruct.h"
+
 	// Variables.
 	UTextBuffer*		ScriptText;
 	UField*				Children;
@@ -284,6 +287,9 @@ class CORE_API UFunction : public UStruct
 	DECLARE_WITHIN(UState)
 	NO_DEFAULT_CONSTRUCTOR(UFunction)
 
+	// Friends.
+	#include "Friends/UFunction.h"
+
 	// Persistent variables.
 	DWORD FunctionFlags;
 	_WORD iNative;
@@ -337,6 +343,9 @@ class CORE_API UState : public UStruct
 	DECLARE_CLASS(UState,UStruct,0)
 	NO_DEFAULT_CONSTRUCTOR(UState)
 
+	// Friends.
+	#include "Friends/UState.h"
+
 	// Variables.
 	QWORD ProbeMask;
 	QWORD IgnoreMask;
@@ -380,6 +389,9 @@ class CORE_API UEnum : public UField
 	DECLARE_WITHIN(UStruct)
 	NO_DEFAULT_CONSTRUCTOR(UEnum)
 
+	// Friends.
+	#include "Friends/UEnum.h"
+
 	// Variables.
 	TArray<FName> Names;
 
@@ -410,6 +422,9 @@ class CORE_API UClass : public UState
 {
 	DECLARE_CLASS(UClass,UState,0)
 	DECLARE_WITHIN(UPackage)
+
+	// Friends.
+	#include "Friends/UClass.h"
 
 	// Variables.
 	DWORD				ClassFlags;
@@ -508,6 +523,9 @@ class CORE_API UConst : public UField
 	DECLARE_CLASS(UConst,UField,0)
 	DECLARE_WITHIN(UStruct)
 	NO_DEFAULT_CONSTRUCTOR(UConst)
+
+	// Friends.
+	#include "Friends/UConst.h"
 
 	// Variables.
 	FString Value;

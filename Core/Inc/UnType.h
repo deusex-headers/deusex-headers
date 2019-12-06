@@ -96,6 +96,9 @@ class CORE_API UByteProperty : public UProperty
 {
 	DECLARE_CLASS(UByteProperty,UProperty,0)
 
+	// Friends.
+	#include "Friends/UByteProperty.h"
+
 	// Variables.
 	UEnum* Enum;
 
@@ -133,6 +136,9 @@ class CORE_API UIntProperty : public UProperty
 {
 	DECLARE_CLASS(UIntProperty,UProperty,0)
 
+	// Friends.
+	#include "Friends/UIntProperty.h"
+
 	// Constructors.
 	UIntProperty()
 	{}
@@ -162,6 +168,9 @@ class CORE_API UIntProperty : public UProperty
 class CORE_API UBoolProperty : public UProperty
 {
 	DECLARE_CLASS(UBoolProperty,UProperty,0)
+
+	// Friends.
+	#include "Friends/UBoolProperty.h"
 
 	// Variables.
 	BITFIELD BitMask;
@@ -199,6 +208,9 @@ class CORE_API UFloatProperty : public UProperty
 {
 	DECLARE_CLASS(UFloatProperty,UProperty,0)
 
+	// Friends.
+	#include "Friends/UFloatProperty.h"
+
 	// Constructors.
 	UFloatProperty()
 	{}
@@ -228,6 +240,9 @@ class CORE_API UFloatProperty : public UProperty
 class CORE_API UObjectProperty : public UProperty
 {
 	DECLARE_CLASS(UObjectProperty,UProperty,0)
+
+	// Friends.
+	#include "Friends/UObjectProperty.h"
 
 	// Variables.
 	class UClass* PropertyClass;
@@ -267,6 +282,9 @@ class CORE_API UClassProperty : public UObjectProperty
 {
 	DECLARE_CLASS(UClassProperty,UObjectProperty,0)
 
+	// Friends.
+	#include "Friends/UClassProperty.h"
+
 	// Variables.
 	class UClass* MetaClass;
 
@@ -300,6 +318,9 @@ class CORE_API UNameProperty : public UProperty
 {
 	DECLARE_CLASS(UNameProperty,UProperty,0)
 
+	// Friends.
+	#include "Friends/UNameProperty.h"
+
 	// Constructors.
 	UNameProperty()
 	{}
@@ -328,6 +349,9 @@ class CORE_API UNameProperty : public UProperty
 class CORE_API UStrProperty : public UProperty
 {
 	DECLARE_CLASS(UStrProperty,UProperty,0)
+
+	// Friends.
+	#include "Friends/UStrProperty.h"
 
 	// Constructors.
 	UStrProperty()
@@ -360,6 +384,9 @@ class CORE_API UStrProperty : public UProperty
 class CORE_API UFixedArrayProperty : public UProperty
 {
 	DECLARE_CLASS(UFixedArrayProperty,UProperty,0)
+
+	// Friends.
+	#include "Friends/UFixedArrayProperty.h"
 
 	// Variables.
 	UProperty* Inner;
@@ -401,6 +428,9 @@ class CORE_API UArrayProperty : public UProperty
 {
 	DECLARE_CLASS(UArrayProperty,UProperty,0)
 
+	// Friends.
+	#include "Friends/UArrayProperty.h"
+
 	// Variables.
 	UProperty* Inner;
 
@@ -440,6 +470,9 @@ class CORE_API UMapProperty : public UProperty
 {
 	DECLARE_CLASS(UMapProperty,UProperty,0)
 
+	// Friends.
+	#include "Friends/UMapProperty.h"
+
 	// Variables.
 	UProperty* Key;
 	UProperty* Value;
@@ -477,6 +510,9 @@ class CORE_API UMapProperty : public UProperty
 class CORE_API UStructProperty : public UProperty
 {
 	DECLARE_CLASS(UStructProperty,UProperty,0)
+
+	// Friends.
+	#include "Friends/UStructProperty.h"
 
 	// Variables.
 	class UStruct* Struct;

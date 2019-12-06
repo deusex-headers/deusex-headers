@@ -14,6 +14,9 @@ class CORE_API UPackage : public UObject
 {
 	DECLARE_CLASS(UPackage,UObject,0)
 
+	// Friends.
+	#include "Friends/UPackage.h"
+
 	// Variables.
 	void* DllHandle;
 	UBOOL AttemptedBind;
@@ -62,6 +65,10 @@ struct UCommandlet_eventMain_Parms
 class CORE_API UCommandlet : public UObject
 {
 	DECLARE_CLASS(UCommandlet,UObject,CLASS_Transient|CLASS_Abstract|CLASS_Localized)
+
+	// Friends.
+	#include "Friends/UCommandlet.h"
+
 	FString HelpCmd, HelpOneLiner, HelpUsage, HelpWebLink;
 	FStringNoInit HelpParm[16], HelpDesc[16];
 	UCommandlet();
@@ -109,6 +116,9 @@ class CORE_API UTextBuffer : public UObject, public FOutputDevice
 {
 	DECLARE_CLASS(UTextBuffer,UObject,0)
 
+	// Friends.
+	#include "Friends/UTextBuffer.h"
+
 	// Variables.
 	INT Pos, Top;
 	FString Text;
@@ -131,7 +141,13 @@ class CORE_API USystem : public USubsystem
 {
 	DECLARE_CLASS(USystem,USubsystem,CLASS_Config)
 
+	// Friends.
+	#include "Friends/USystem.h"
+
 	// Variables.
+#if UNREAL_TOURNAMENT
+	INT LicenseeMode;
+#endif
 	INT PurgeCacheDays;
 	FString SavePath;
 	FString CachePath;

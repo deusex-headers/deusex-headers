@@ -17,6 +17,9 @@ class CORE_API UFactory : public UObject
 {
 	DECLARE_ABSTRACT_CLASS(UFactory,UObject,0)
 
+	// Friends.
+	#include "Friends/UFactory.h"
+
 	// Per-class variables.
 	UClass*         SupportedClass;
 	UClass*			ContextClass;
@@ -63,6 +66,9 @@ template< class T > T* ImportObject( UObject* Outer, FName Name, DWORD Flags, co
 class CORE_API UTextBufferFactory : public UFactory
 {
 	DECLARE_CLASS(UTextBufferFactory,UFactory,0)
+
+	// Friends.
+	#include "Friends/UTextBufferFactory.h"
 
 	// Constructors.
 	UTextBufferFactory();

@@ -17,15 +17,18 @@ class CORE_API UDebugInfo : public UObject
 {
 	DECLARE_CLASS(UDebugInfo, UObject, 0)
 
-	public:
-		UDebugInfo();
+	// Friends.
+	#include "Friends/UDebugInfo.h"
 
-	public:
-		DECLARE_FUNCTION(execAddTimingData)
-		DECLARE_FUNCTION(execCommand)
+public:
+	UDebugInfo();
 
-		DECLARE_FUNCTION(execSetString)
-		DECLARE_FUNCTION(execGetString)
+public:
+	DECLARE_FUNCTION(execAddTimingData)
+	DECLARE_FUNCTION(execCommand)
+
+	DECLARE_FUNCTION(execSetString)
+	DECLARE_FUNCTION(execGetString)
 };
 
 enum

@@ -392,6 +392,7 @@ class CORE_API UObject : public FUnknown
 	friend class FArchiveTagUsed;
 	friend struct FObjectImport;
 	friend struct FObjectExport;
+	#include "Friends/UObject.h"
 
 private:
 	// Internal per-object variables.

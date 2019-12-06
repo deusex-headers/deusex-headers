@@ -216,6 +216,9 @@ class CORE_API ULinker : public UObject
 	DECLARE_CLASS(ULinker,UObject,CLASS_Transient)
 	NO_DEFAULT_CONSTRUCTOR(ULinker)
 
+	// Friends.
+	#include "Friends/ULinker.h"
+
 	// Variables.
 	UObject*				LinkerRoot;			// The linker's root object.
 	FPackageFileSummary		Summary;			// File summary.
@@ -315,6 +318,7 @@ class ULinkerLoad : public ULinker, public FArchive
 	// Friends.
 	friend class UObject;
 	friend class UPackageMap;
+	#include "Friends/ULinkerLoad.h"
 
 	// Variables.
 	DWORD					LoadFlags;
@@ -1023,6 +1027,9 @@ class ULinkerSave : public ULinker, public FArchive
 {
 	DECLARE_CLASS(ULinkerSave,ULinker,CLASS_Transient);
 	NO_DEFAULT_CONSTRUCTOR(ULinkerSave);
+
+	// Friends.
+	#include "Friends/ULinkerSave.h"
 
 	// Variables.
 	FArchive* Saver;

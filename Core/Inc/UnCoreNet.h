@@ -102,6 +102,9 @@ class CORE_API UPackageMap : public UObject
 {
 	DECLARE_CLASS(UPackageMap,UObject,CLASS_Transient);
 
+	// Friends.
+	#include "Friends/UPackageMap.h"
+
 	// UObject interface.
 	void Serialize( FArchive& Ar );
 	void Destroy();

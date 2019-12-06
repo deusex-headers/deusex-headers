@@ -65,22 +65,35 @@ private:
 //
 // Reads bitstreams.
 //
-struct CORE_API FBitReader : public FArchive
+struct FBitReader : public FArchive
 {
 public:
-	FBitReader( BYTE* Src=NULL, INT CountBits=0 );
-	void SetData( FBitReader& Src, INT CountBits );
-	void SerializeBits( void* Dest, INT LengthBits );
-	void SerializeInt( DWORD& Value, DWORD Max );
-	DWORD ReadInt( DWORD Max );
-	BYTE ReadBit();
-	void Serialize( void* Dest, INT LengthBytes );
-	BYTE* GetData();
-	UBOOL AtEnd();
-	void SetOverflowed();
-	INT GetNumBytes();
-	INT GetNumBits();
-	INT GetPosBits();
+	CORE_API FBitReader( BYTE* Src=NULL, INT CountBits=0 );
+	CORE_API void SetData( FBitReader& Src, INT CountBits );
+	CORE_API void SerializeBits( void* Dest, INT LengthBits );
+	CORE_API void SerializeInt( DWORD& Value, DWORD Max );
+	CORE_API DWORD ReadInt( DWORD Max );
+	CORE_API BYTE ReadBit();
+	DWORD ReadBits( INT NumBits )
+	{
+		guardSlow(FBitReader::ReadBits);
+		checkSlow(NumBits>=0);
+		checkSlow(NumBits<=32);
+
+		DWORD Result=0;
+		for ( INT Bit=0; Bit<NumBits; Bit++ )
+			Result |= DWORD(ReadBit())<<Bit;
+
+		return Result;
+		unguardSlow;
+	}
+	CORE_API void Serialize( void* Dest, INT LengthBytes );
+	CORE_API BYTE* GetData();
+	CORE_API UBOOL AtEnd();
+	CORE_API void SetOverflowed();
+	CORE_API INT GetNumBytes();
+	CORE_API INT GetNumBits();
+	CORE_API INT GetPosBits();
 private:
 	TArray<BYTE> Buffer;
 	INT   Num;

@@ -3,6 +3,8 @@
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 =============================================================================*/
 
+#include <cstring>
+
 /*----------------------------------------------------------------------------
 	Platform compiler definitions.
 ----------------------------------------------------------------------------*/
@@ -21,19 +23,28 @@
 #endif
 
 // Stack control.
+#include <sys/wait.h>
 #include <signal.h>
 #include <setjmp.h>
 class __Context
 {
 public:
 	__Context() { Last = Env; }
-	~__Context() { /* Env = Last; */ }
+	~__Context() { Env = Last; }
 	static void StaticInit();
 	static jmp_buf Env;
 
 protected:
-	static void HandleSIGSEGV( int Sig );
-	static struct sigaction Act;
+	static void HandleSignal( int Sig );
+	static struct sigaction Act_SIGHUP;
+	static struct sigaction Act_SIGQUIT;
+	static struct sigaction Act_SIGILL;
+	static struct sigaction Act_SIGTRAP;
+	static struct sigaction Act_SIGIOT;
+	static struct sigaction Act_SIGBUS;
+	static struct sigaction Act_SIGFPE;
+	static struct sigaction Act_SIGSEGV;
+	static struct sigaction Act_SIGTERM;
 	jmp_buf Last;
 };
 
@@ -279,6 +290,15 @@ extern "C"
 
 // Module name
 extern ANSICHAR GModule[32];
+
+/*----------------------------------------------------------------------------
+	OS specific include.
+----------------------------------------------------------------------------*/
+
+#if __UNIX__
+	#include "UnUnix.h"
+	#include <signal.h>
+#endif
 
 /*----------------------------------------------------------------------------
 	The End.

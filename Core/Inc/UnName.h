@@ -60,7 +60,7 @@ template <> struct TTypeInfo<FNameEntry*> : public TTypeInfoBase<FNameEntry*>
 // and only once in that table.  Names are case-insensitive.
 //
 #define checkName checkSlow
-class CORE_API FName 
+class CORE_API FName
 {
 public:
 	// Accessors.

@@ -20,12 +20,14 @@
 #undef WORD
 #undef DWORD
 #undef INT
+#undef UINT
 #undef FLOAT
 #undef MAXBYTE
 #undef MAXWORD
 #undef MAXDWORD
 #undef MAXINT
 #undef CDECL
+#undef UNREFERENCED_PARAMETER
 
 // Make sure HANDLE is defined.
 #ifndef _WINDOWS_
@@ -34,8 +36,11 @@
 #endif
 
 // Sizes.
-enum {DEFAULT_ALIGNMENT = 8 }; // Default boundary to align memory allocations on.
-enum {CACHE_LINE_SIZE   = 32}; // Cache line size.
+#define DEFAULT_ALIGNMENT       16   // Default boundary to align memory allocations on.
+#define CACHE_LINE_SIZE         64   // Cache line size.
+#define HALF_CACHE_LINE_SIZE    32   // Align macro won't do math in VC6.
+#define QUARTER_CACHE_LINE_SIZE 16   // Align macro won't do math in VC6.
+#define PAGE_SIZE               4096 // Page size.
 
 // Optimization macros (preceeded by #pragma).
 #define DISABLE_OPTIMIZATION optimize("",off)
@@ -65,6 +70,7 @@ enum {CACHE_LINE_SIZE   = 32}; // Cache line size.
 typedef unsigned char		BYTE;		// 8-bit  unsigned.
 typedef unsigned short		_WORD;		// 16-bit unsigned.
 typedef unsigned long		DWORD;		// 32-bit unsigned.
+typedef unsigned int		UINT;		// 32-bit unsigned.
 typedef unsigned __int64	QWORD;		// 64-bit unsigned.
 
 // Signed base types.
@@ -84,6 +90,8 @@ typedef signed int			UBOOL;		// Boolean 0 (false) or 1 (true).
 typedef float				FLOAT;		// 32-bit IEEE floating point.
 typedef double				DOUBLE;		// 64-bit IEEE double.
 typedef unsigned long       SIZE_T;     // Corresponds to C SIZE_T.
+typedef unsigned int        UINT; // 32-bit unsigned integer, but with int instead of long type compared to DWORD.
+typedef signed int          PTRDIFF_T;
 
 // Bitfield type.
 typedef unsigned long       BITFIELD;	// For bitfields.
@@ -112,6 +120,7 @@ typedef unsigned long       BITFIELD;	// For bitfields.
 #pragma warning(disable : 4355) /* this used in base initializer list                                   */
 #pragma warning(disable : 4097) /* typedef-name '' used as synonym for class-name ''                    */
 #pragma warning(disable : 4291) /* typedef-name '' used as synonym for class-name ''                    */
+#pragma warning(disable : 4505) /* Unreferenced local function has been removed                         */
 
 // If C++ exception handling is disabled, force guarding to be off.
 #ifndef _CPPUNWIND
@@ -129,6 +138,11 @@ typedef unsigned long       BITFIELD;	// For bitfields.
 	#define ASM 0
 #endif
 
+// If no asm, redefine __asm to cause compile-time error.
+#if !ASM
+	#define __asm ERROR_ASM_NOT_ALLOWED
+#endif
+
 // Strings.
 #define LINE_TERMINATOR TEXT("\r\n")
 #define PATH_SEPARATOR TEXT("\\")
@@ -141,6 +155,11 @@ typedef unsigned long       BITFIELD;	// For bitfields.
 
 // NULL.
 #define NULL 0
+
+// It helps... sometimes.
+#ifndef UNREFERENCED_PARAMETER
+	#define UNREFERENCED_PARAMETER(P) (P)
+#endif
 
 // Package implementation.
 #define IMPLEMENT_PACKAGE_PLATFORM(pkgname) \
@@ -172,8 +191,16 @@ typedef unsigned long       BITFIELD;	// For bitfields.
 	#define ANSI_TO_TCHAR(str) winToUNICODE((TCHAR*)appAlloca(winGetSizeUNICODE(str)*sizeof(TCHAR)),str,winGetSizeUNICODE(str))
 #endif
 
-// Bitfield alignment.
+// GCC Workarounds.
+#define GCC_OPT_INLINE inline
 #define GCC_PACK(n)
+#define GCC_ALIGN(n)
+
+// Alignment
+#define ALIGN_STRUCT(n) __declspec(align(n))
+
+// Win32 stuff.
+#define DECLARE_INITED(typ,var) typ var; appMemzero(&var,sizeof(var)); var.dwSize=sizeof(var);
 
 /*----------------------------------------------------------------------------
 	Globals.
@@ -189,6 +216,22 @@ extern "C"
 	extern CORE_API UBOOL GIsK6;
 	extern CORE_API UBOOL GIs3DNow;
 	extern CORE_API UBOOL GTimestamp;
+}
+
+//
+// Katmai New Instructions (KNI) aka SSE.
+//
+// I have seen third party code checking for for it manually,
+// so make it a little more obvious. --han
+//
+#define GIsSSE GIsKatmai
+
+// System identification (CoreI).
+extern "C"
+{
+	extern COREI_API UBOOL GIsSSE2;
+	extern COREI_API UBOOL GIsSSE3;
+	extern COREI_API UBOOL GTSCInvariant;
 }
 
 /*----------------------------------------------------------------------------
@@ -341,7 +384,20 @@ inline void appDebugBreak()
 #endif
 
 extern "C" void* __cdecl _alloca(size_t);
-#define appAlloca(size) _alloca((size+7)&~7)
+#define appAlloca(size) _alloca((size+DEFAULT_ALIGNMENT-1)&~(DEFAULT_ALIGNMENT-1))
+
+/*-----------------------------------------------------------------------------
+	Make sure proper FourCC macro is defined..
+-----------------------------------------------------------------------------*/
+
+#ifdef FCC
+	#undef FCC
+#endif
+
+#define FCC(ch4) ((((DWORD)(ch4) & 0xFF) << 24) |     \
+                  (((DWORD)(ch4) & 0xFF00) << 8) |    \
+                  (((DWORD)(ch4) & 0xFF0000) >> 8) |  \
+                  (((DWORD)(ch4) & 0xFF000000) >> 24))
 
 /*----------------------------------------------------------------------------
 	The End.

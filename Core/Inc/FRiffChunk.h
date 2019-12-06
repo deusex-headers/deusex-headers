@@ -2,26 +2,9 @@
 	FRiffChunk.h: Unreal RIFF standard file management.
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 
-Revision history:
-	* Created by Tim Sweeney.
+	Revision history:
+	 * Created by Tim Sweeney.
 =============================================================================*/
-
-/*-----------------------------------------------------------------------------
-	Utilities.
------------------------------------------------------------------------------*/
-
-// Make a "four character code" DWORD from a four-character string.
-inline DWORD appFourCC( const TCHAR* Ch )
-{
-	if( !Ch )
-		return 0;
-	INT Len=appStrlen(Ch);
-	return
-		((DWORD)(BYTE)(Len>0?Ch[0]:32) << 0 )
-	|	((DWORD)(BYTE)(Len>1?Ch[1]:32) << 8 )
-	|	((DWORD)(BYTE)(Len>2?Ch[2]:32) << 16)
-	|	((DWORD)(BYTE)(Len>3?Ch[3]:32) << 24);
-}
 
 /*-----------------------------------------------------------------------------
 	General purpose RIFF chunk types.

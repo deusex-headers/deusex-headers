@@ -62,9 +62,10 @@ CORE_API void VARARGS appUnwindf( const TCHAR* Fmt, ... );
 CORE_API const TCHAR* appGetSystemErrorMessage( INT Error=0 );
 CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... );
 
-#define debugf				GLog->Logf
+#define debugf        GLog->Logf
 #define warnf         GWarn->Logf
-#define appErrorf			GError->Logf
+#define warn          GWarn->Log
+#define appErrorf     GError->Logf
 
 #if DO_GUARD_SLOW
 	#define debugfSlow    GLog->Logf
@@ -76,7 +77,7 @@ CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... );
 	#define appErrorfSlow GNull->Logf
 #endif
 
-#if UNICODE
+#if _UNICODE
 	#define appPrintf wprintf
 #else
 	#define appPrintf printf
@@ -91,7 +92,7 @@ CORE_API void appFreeDllHandle( void* DllHandle );
 CORE_API void* appGetDllExport( void* DllHandle, const TCHAR* ExportName );
 CORE_API void appLaunchURL( const TCHAR* URL, const TCHAR* Parms=NULL, FString* Error=NULL );
 CORE_API void appCreateProc( const TCHAR* URL, const TCHAR* Parms );
-CORE_API void appEnableFastMath( UBOOL Enable );
+CORE_API void appEnableFastMath( UBOOL Enable ); // CoreI will provide own stub version.
 CORE_API class FGuid appCreateGuid();
 CORE_API void appCreateTempFilename( const TCHAR* Path, TCHAR* Result256 );
 CORE_API void appCleanFileCache();
@@ -153,7 +154,7 @@ CORE_API FString appClipboardPaste();
 //
 // For throwing string-exceptions which safely propagate through guard/unguard.
 //
-CORE_API void VARARGS appThrowf( const TCHAR* Fmt, ... );
+CORE_API void VARARGS appThrowf( const TCHAR* Fmt, ... ); // CoreI will provide fixed version.
 
 /*-----------------------------------------------------------------------------
 	Check macros for assertions.
@@ -167,7 +168,7 @@ CORE_API void VARARGS appThrowf( const TCHAR* Fmt, ... );
 	#define check(expr)  {if(!(expr)) appFailAssert( #expr, __FILE__, __LINE__ );}
 	#define verify(expr) {if(!(expr)) appFailAssert( #expr, __FILE__, __LINE__ );}
 #else
-	#define check(expr)
+	#define check(expr)  
 	#define verify(expr) expr
 #endif
 
@@ -189,18 +190,36 @@ CORE_API void VARARGS appThrowf( const TCHAR* Fmt, ... );
 //
 // Normal timing.
 //
-#define clock(Timer)   {Timer -= appCycles();}
-#define unclock(Timer) {Timer += appCycles()-34;}
+inline void appClock( INT& Timer )
+{
+	Timer -= appCycles();
+}
+inline void appUnclock( INT& Timer )
+{
+	Timer += appCycles();
+}
+inline void appClockSerialized( INT& Timer )
+{
+	Timer -= appSerializedCycles();
+}
+inline void appUnclockSerialized( INT& Timer )
+{
+	Timer += appSerializedCycles();
+}
 
 //
 // Performance critical timing.
 //
 #if DO_CLOCK_SLOW
-	#define clockSlow(Timer)   {Timer-=appCycles();}
-	#define unclockSlow(Timer) {Timer+=appCycles();}
+	inline void appClockSlow            ( INT& Timer ) { appClockSlow            ( Timer ); }
+	inline void appUnclockSlow          ( INT& Timer ) { appUnclockSlow          ( Timer ); }
+	inline void appClockSerializedSlow  ( INT& Timer ) { appClockSerializedSlow  ( Timer ); }
+	inline void appUnclockSerializedSlow( INT& Timer ) { appUnclockSerializedSlow( Timer ); }
 #else
-	#define clockSlow(Timer)
-	#define unclockSlow(Timer)
+	inline void appClockSlow            ( INT& Timer ) {}
+	inline void appUnclockSlow          ( INT& Timer ) {}
+	inline void appClockSerializedSlow  ( INT& Timer ) {}
+	inline void appUnclockSerializedSlow( INT& Timer ) {}
 #endif
 
 /*-----------------------------------------------------------------------------
@@ -214,31 +233,30 @@ CORE_API FString appFormat( FString Src, const TMultiMap<FString,FString>& Map )
 -----------------------------------------------------------------------------*/
 
 // DEUS_EX CNN
-CORE_API UBOOL appCheckGermanSystem(void);
+#if DEUS_EX
+CORE_API UBOOL appCheckGermanSystem(void); // CoreI will provide own a version always returning false.
+#endif
 
 CORE_API const TCHAR* Localize( const TCHAR* Section, const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL, UBOOL Optional=0 );
 CORE_API const TCHAR* LocalizeError( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 CORE_API const TCHAR* LocalizeProgress( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 CORE_API const TCHAR* LocalizeQuery( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 CORE_API const TCHAR* LocalizeGeneral( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
-inline   const TCHAR* LocalizeWarning( const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL ) { return Localize( TEXT("Warnings"), Key, Package, LangExt ); }
 
-#if UNICODE
+#ifdef _UNICODE
 	CORE_API const TCHAR* Localize( const ANSICHAR* Section, const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL, UBOOL Optional=0 );
 	CORE_API const TCHAR* LocalizeError( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 	CORE_API const TCHAR* LocalizeProgress( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 	CORE_API const TCHAR* LocalizeQuery( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
 	CORE_API const TCHAR* LocalizeGeneral( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL );
-	inline   const TCHAR* LocalizeWarning( const ANSICHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL ) { return Localize( "Warnings", Key, Package, LangExt ); }
 #endif
 
 /*-----------------------------------------------------------------------------
-	File functions.
+	File utilities.
 -----------------------------------------------------------------------------*/
 
-// File utilities.
 CORE_API const TCHAR* appFExt( const TCHAR* Filename );
-CORE_API UBOOL appUpdateFileModTime( TCHAR* Filename );
+CORE_API UBOOL appUpdateFileModTime( TCHAR* Filename ); // !! Add to FFileManagerI
 CORE_API FString appGetGMTRef();
 
 /*-----------------------------------------------------------------------------
@@ -272,40 +290,40 @@ CORE_API void appSleep( FLOAT Seconds );
 	Character type functions.
 -----------------------------------------------------------------------------*/
 
-inline TCHAR appToUpper( TCHAR c )
+inline TCHAR appToUpper( INT Ch )
 {
-	return (c<'a' || c>'z') ? (c) : (TCHAR)(c+'A'-'a');
+	return (TCHAR)((Ch<'a' || Ch>'z') ? Ch : (Ch+'A'-'a'));
 }
-inline TCHAR appToLower( TCHAR c )
+inline TCHAR appToLower( INT Ch )
 {
-	return (c<'A' || c>'Z') ? (c) : (TCHAR)(c+'a'-'A');
+	return (TCHAR)((Ch<'A' || Ch>'Z') ? Ch : (Ch+'a'-'A'));
 }
-inline UBOOL appIsAlpha( TCHAR c )
+inline UBOOL appIsAlpha( INT Ch )
 {
-	return (c>='a' && c<='z') || (c>='A' && c<='Z');
+	return (Ch>='a' && Ch<='z') || (Ch>='A' && Ch<='Z');
 }
-inline UBOOL appIsDigit( TCHAR c )
+inline UBOOL appIsDigit( INT Ch )
 {
-	return c>='0' && c<='9';
+	return Ch>='0' && Ch<='9';
 }
-inline UBOOL appIsAlnum( TCHAR c )
+inline UBOOL appIsAlnum( INT Ch )
 {
-	return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
+	return appIsAlpha(Ch) || appIsDigit(Ch);
 }
-inline UBOOL appIsHexDigit( TCHAR c )
+inline UBOOL appIsHexDigit( INT Ch )
 {
-	if (c>='0' && c<='9')
+	if ( appIsDigit(Ch) )
 		return 1;
-	c = appToUpper(c);
-	return c>='A' && c<='A';
+	Ch = appToUpper(Ch);
+	return (Ch>='A' && Ch<='F');
 }
-inline INT appHexDigitToDec( TCHAR c )
+inline INT appHexDigitToDec( INT Ch )
 {
-	if ( (c>='0' && c<='9') )
-		return c-'0';
-	c = appToUpper(c);
-	if ( c>='A' && c<='A' )
-		return c-'A'+10;
+	if ( appIsDigit(Ch) )
+		return Ch-'0';
+	Ch = appToUpper(Ch);
+	if ( Ch>='A' && Ch<='F' )
+		return Ch-'A'+10;
 	return 0; // Failed.
 }
 inline ANSICHAR appAnsiToUpper( ANSICHAR c )
@@ -375,23 +393,23 @@ typedef int QSORT_RETURN;
 typedef QSORT_RETURN(CDECL* QSORT_COMPARE)( const void* A, const void* B );
 CORE_API void appQsort( void* Base, INT Num, INT Width, QSORT_COMPARE Compare );
 
-//
-// Case insensitive string hash function.
-//
+// Case insensitive string hash functions.
 inline DWORD appStrihash( const TCHAR* Data )
 {
+	guardSlow(appStrihash);
 	DWORD Hash=0;
 	while( *Data )
 	{
 		TCHAR Ch = appToUpper(*Data++);
-		BYTE  B  = Ch;
+		BYTE  B  = (BYTE)Ch;
 		Hash     = ((Hash >> 8) & 0x00FFFFFF) ^ GCRCTable[(Hash ^ B) & 0x000000FF];
 #if UNICODE
-		B        = Ch>>8;
+		B        = (BYTE)(Ch>>8);
 		Hash     = ((Hash >> 8) & 0x00FFFFFF) ^ GCRCTable[(Hash ^ B) & 0x000000FF];
 #endif
 	}
 	return Hash;
+	unguardSlow;
 }
 
 /*-----------------------------------------------------------------------------
@@ -696,6 +714,40 @@ CORE_API void appMD5Final( BYTE* digest, FMD5Context* context );
 CORE_API void appMD5Transform( DWORD* state, BYTE* block );
 CORE_API void appMD5Encode( BYTE* output, DWORD* input, INT len );
 CORE_API void appMD5Decode( DWORD* output, BYTE* input, INT len );
+
+/*-----------------------------------------------------------------------------
+	Misc.
+-----------------------------------------------------------------------------*/
+
+// Make a "four character code" DWORD from a four-character string.
+static DWORD appFourCC( const TCHAR* Ch )
+{
+	if( !Ch )
+		return 0;
+	INT Len=appStrlen(Ch);
+	return
+		((DWORD)(BYTE)(Len>0?Ch[0]:32) << 0 )
+	|	((DWORD)(BYTE)(Len>1?Ch[1]:32) << 8 )
+	|	((DWORD)(BYTE)(Len>2?Ch[2]:32) << 16)
+	|	((DWORD)(BYTE)(Len>3?Ch[3]:32) << 24);
+}
+
+// Make a "eight character code" QWORD from a eight-character string.
+static QWORD appEightCC( const TCHAR* Ch )
+{
+	if( !Ch )
+		return 0;
+	INT Len=appStrlen(Ch);
+	return
+		((QWORD)(BYTE)(Len>0?Ch[0]:32) << 0 )
+	|	((QWORD)(BYTE)(Len>1?Ch[1]:32) << 8 )
+	|	((QWORD)(BYTE)(Len>2?Ch[2]:32) << 16)
+	|	((QWORD)(BYTE)(Len>3?Ch[3]:32) << 24)
+	|	((QWORD)(BYTE)(Len>0?Ch[0]:32) << 32)
+	|	((QWORD)(BYTE)(Len>1?Ch[1]:32) << 40)
+	|	((QWORD)(BYTE)(Len>2?Ch[2]:32) << 48)
+	|	((QWORD)(BYTE)(Len>3?Ch[3]:32) << 56);
+}
 
 /*-----------------------------------------------------------------------------
 	The End.

@@ -1,17 +1,14 @@
 /*=============================================================================
 	Core.h: Unreal core public header file.
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
+	Copyright 2016-2019 Sebastian Kaufel, Inc. All Rights Reserved.
 
 	Revision history:
-		* Created by Tim Sweeney
+	 * Created by Tim Sweeney.
 =============================================================================*/
 
 #ifndef _INC_CORE
 #define _INC_CORE
-
-/*----------------------------------------------------------------------------
-	Low level includes.
-----------------------------------------------------------------------------*/
 
 // API definition.
 #ifndef CORE_API
@@ -23,28 +20,20 @@
 	#define COREI_API DLL_IMPORT
 #endif
 
+/*-----------------------------------------------------------------------------
+	Includes.
+-----------------------------------------------------------------------------*/
+
 // Build options.
 #include "UnBuild.h"
 
-// Compiler specific include.
+// Compiler specific includes.
 #if _MSC_VER
 	#include "UnVcWin32.h"
 #elif __GNUG__
-	#include <string.h>
 	#include "UnGnuG.h"
 #else
 	#error Unknown Compiler
-#endif
-
-// If no asm, redefine __asm to cause compile-time error.
-#if !ASM && !__GNUG__
-	#define __asm ERROR_ASM_NOT_ALLOWED
-#endif
-
-// OS specific include.
-#if __UNIX__
-	#include "UnUnix.h"
-	#include <signal.h>
 #endif
 
 // Global constants.
@@ -70,7 +59,7 @@ enum ENoInit {E_NoInit = 0};
 	#define US FString(L"")
 	inline TCHAR    FromAnsi   ( ANSICHAR In ) { return (BYTE)In;                        }
 	inline TCHAR    FromUnicode( UNICHAR In  ) { return In;                              }
-	inline ANSICHAR ToAnsi     ( TCHAR In    ) { return (_WORD)In<0x100 ? In : MAXSBYTE; }
+	inline ANSICHAR ToAnsi     ( TCHAR In    ) { return (_WORD)In<0x100 ? (ANSICHAR)In : (ANSICHAR)MAXSBYTE; }
 	inline UNICHAR  ToUnicode  ( TCHAR In    ) { return In;                              }
 #else
 	#ifndef _TCHAR_DEFINED
@@ -86,6 +75,12 @@ enum ENoInit {E_NoInit = 0};
 	inline ANSICHAR ToAnsi     ( TCHAR In    ) { return (_WORD)In<0x100 ? In : MAXSBYTE; }
 	inline UNICHAR  ToUnicode  ( TCHAR In    ) { return (BYTE)In;                        }
 #endif
+
+// Alignment.
+#define PAGE_ALIGN_STRUCT              ALIGN_STRUCT(PAGE_SIZE)
+#define CACHELINE_ALIGN_STRUCT         ALIGN_STRUCT(CACHE_LINE_SIZE)
+#define HALF_CACHELINE_ALIGN_STRUCT    ALIGN_STRUCT(HALF_CACHE_LINE_SIZE)
+#define QUARTER_CACHELINE_ALIGN_STRUCT ALIGN_STRUCT(QUARTER_CACHE_LINE_SIZE)
 
 /*----------------------------------------------------------------------------
 	Forward declarations.
@@ -124,7 +119,9 @@ class       URenderDevice;
 class		UPackageMap;
 
 // Special Magic not part of those other lame groupie object classes
+#if DEUS_EX
 class UDebugSys;
+#endif
 
 // Structs.
 class FName;
@@ -180,6 +177,7 @@ public:
 class CORE_API FOutputDeviceError : public FOutputDevice
 {
 public:
+	// FOutputDeviceError interface.
 	virtual void HandleError()=0;
 };
 
@@ -187,6 +185,7 @@ public:
 class CORE_API FMalloc
 {
 public:
+	// FMalloc interface.
 	virtual void* Malloc( DWORD Count, const TCHAR* Tag )=0;
 	virtual void* Realloc( void* Original, DWORD Count, const TCHAR* Tag )=0;
 	virtual void Free( void* Original )=0;
@@ -200,6 +199,7 @@ public:
 class FConfigCache
 {
 public:
+	// FConfigCache interface.
 	virtual UBOOL GetBool( const TCHAR* Section, const TCHAR* Key, UBOOL& Value, const TCHAR* Filename=NULL )=0;
 	virtual UBOOL GetInt( const TCHAR* Section, const TCHAR* Key, INT& Value, const TCHAR* Filename=NULL )=0;
 	virtual UBOOL GetFloat( const TCHAR* Section, const TCHAR* Key, FLOAT& Value, const TCHAR* Filename=NULL )=0;
@@ -310,54 +310,67 @@ public:
 ----------------------------------------------------------------------------*/
 
 // Core globals.
-CORE_API extern FMemStack				GMem;
-CORE_API extern FOutputDevice*			GLog;
-CORE_API extern FOutputDevice*			GNull;
-CORE_API extern FOutputDevice*		    GThrow;
-CORE_API extern FOutputDeviceError*		GError;
-CORE_API extern FFeedbackContext*		GWarn;
-CORE_API extern FConfigCache*			GConfig;
-CORE_API extern FTransactionBase*		GUndo;
-CORE_API extern FOutputDevice*			GLogHook;
-CORE_API extern FExec*					GExec;
-CORE_API extern FMalloc*				GMalloc;
-CORE_API extern FFileManager*			GFileManager;
-CORE_API extern USystem*				GSys;
-CORE_API extern UProperty*				GProperty;
-CORE_API extern BYTE*					GPropAddr;
-CORE_API extern USubsystem*				GWindowManager;
-CORE_API extern TCHAR				    GErrorHist[4096];
-CORE_API extern TCHAR                   GTrue[64], GFalse[64], GYes[64], GNo[64], GNone[64];
-CORE_API extern TCHAR					GCdPath[];
-CORE_API extern	DOUBLE					GSecondsPerCycle;
-CORE_API extern	DOUBLE					GTempDouble;
-CORE_API extern void					(*GTempFunc)(void*);
-CORE_API extern SQWORD					GTicks;
-CORE_API extern INT                     GScriptCycles;
-CORE_API extern DWORD					GPageSize;
-CORE_API extern DWORD					GProcessorCount;
-CORE_API extern DWORD					GPhysicalMemory;
-CORE_API extern DWORD                   GUglyHackFlags;
-CORE_API extern UBOOL					GIsScriptable;
-CORE_API extern UBOOL					GIsEditor;
-CORE_API extern UBOOL					GIsClient;
-CORE_API extern UBOOL					GIsServer;
-CORE_API extern UBOOL					GIsCriticalError;
-CORE_API extern UBOOL					GIsStarted;
-CORE_API extern UBOOL					GIsRunning;
-CORE_API extern UBOOL					GIsSlowTask;
-CORE_API extern UBOOL					GIsGuarded;
-CORE_API extern UBOOL					GIsRequestingExit;
-CORE_API extern UBOOL					GIsStrict;
-CORE_API extern UBOOL                   GScriptEntryTag;
-CORE_API extern UBOOL                   GLazyLoad;
-CORE_API extern UBOOL					GUnicode;
-CORE_API extern UBOOL					GUnicodeOS;
-CORE_API extern class FGlobalMath		GMath;
-CORE_API extern	URenderDevice*			GRenderDevice;
-CORE_API extern class FArchive*         GDummySave;
+CORE_API  extern FMemStack            GMem;
+CORE_API  extern FOutputDevice*       GLog;
+CORE_API  extern FOutputDevice*       GNull;
+CORE_API  extern FOutputDevice*       GThrow;
+CORE_API  extern FOutputDeviceError*  GError;
+CORE_API  extern FFeedbackContext*    GWarn;
+CORE_API  extern FConfigCache*        GConfig;
+CORE_API  extern FTransactionBase*    GUndo;
+CORE_API  extern FOutputDevice*       GLogHook;
+CORE_API  extern FExec*               GExec;
+CORE_API  extern FMalloc*             GMalloc;
+CORE_API  extern FFileManager*        GFileManager;
+CORE_API  extern USystem*             GSys;
+CORE_API  extern UProperty*           GProperty;
+CORE_API  extern BYTE*                GPropAddr;
+CORE_API  extern USubsystem*          GWindowManager;
+CORE_API  extern TCHAR  GErrorHist[4096];
+CORE_API  extern TCHAR  GTrue[64], GFalse[64], GYes[64], GNo[64], GNone[64];
+CORE_API  extern TCHAR  GCdPath[];
+CORE_API  extern DOUBLE GSecondsPerCycle;
+CORE_API  extern DOUBLE GTempDouble;
+CORE_API  extern void   (*GTempFunc)(void*);
+CORE_API  extern SQWORD GTicks;
+CORE_API  extern INT    GScriptCycles;
+CORE_API  extern DWORD  GPageSize;
+CORE_API  extern DWORD  GProcessorCount;
+CORE_API  extern DWORD  GPhysicalMemory;
+#if !NERF_ARENA_BLAST
+CORE_API  extern DWORD  GUglyHackFlags;
+#endif
+CORE_API  extern UBOOL  GIsScriptable;
+CORE_API  extern UBOOL  GIsEditor;
+CORE_API  extern UBOOL  GIsClient;
+CORE_API  extern UBOOL  GIsServer;
+CORE_API  extern UBOOL  GIsCriticalError;
+CORE_API  extern UBOOL  GIsStarted;
+CORE_API  extern UBOOL  GIsRunning;
+CORE_API  extern UBOOL  GIsSlowTask;
+CORE_API  extern UBOOL  GIsGuarded;
+CORE_API  extern UBOOL  GIsRequestingExit;
+CORE_API  extern UBOOL  GIsStrict;
+CORE_API  extern UBOOL  GScriptEntryTag;
+CORE_API  extern UBOOL  GLazyLoad;
+CORE_API  extern UBOOL  GUnicode;
+CORE_API  extern UBOOL  GUnicodeOS;
+CORE_API  extern class FArchive*   GDummySave;
+CORE_API  extern class FGlobalMath GMath;
 
-CORE_API extern UDebugSys               GDebugSys;
+// Seriously, don't use this. --han
+#if __REALLY_WANT_G_RENDER_DEVICE
+CORE_API extern URenderDevice* GRenderDevice;
+#endif
+
+#if DEUS_EX
+CORE_API extern UDebugSys GDebugSys;
+#elif NERF_ARENA_BLAST
+// NERF Trace API.
+CORE_API extern INT       GTraceDepth;
+CORE_API extern UBOOL     GTraceDynamic;
+CORE_API extern TCHAR*    GTraceTopic;
+#endif
 
 // Per module globals.
 extern "C" DLL_EXPORT TCHAR GPackage[];

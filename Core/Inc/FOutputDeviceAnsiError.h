@@ -15,11 +15,7 @@ class FOutputDeviceAnsiError : public FOutputDeviceError
 	EName ErrorType;
 	void LocalPrint( const TCHAR* Str )
 	{
-#if UNICODE
-		wprintf(TEXT("%s"),Str);
-#else
-		printf(TEXT("%s"),Str);
-#endif
+		appPrintf( TEXT("%s"), Str );
 	}
 public:
 	FOutputDeviceAnsiError()
@@ -30,10 +26,10 @@ public:
 	{
 #ifdef _DEBUG
 		// Just display info and break the debugger.
-  		debugf( NAME_Critical, TEXT("appError called while debugging:") );
+		debugf( NAME_Critical, TEXT("appError called while debugging:") );
 		debugf( NAME_Critical, Msg );
 		UObject::StaticShutdownAfterError();
-  		debugf( NAME_Critical, TEXT("Breaking debugger") );
+		debugf( NAME_Critical, TEXT("Breaking debugger") );
 		*(BYTE*)NULL=0;
 #else
 		if( !GIsCriticalError )
@@ -59,13 +55,20 @@ public:
 				HandleError();
 			}
 		}
-		else debugf( NAME_Critical, TEXT("Error reentered: %s"), Msg );
+		else
+		{
+			debugf( NAME_Critical, TEXT("Error reentered: %s"), Msg );
+		}
 
 		// Propagate the error or exit.
 		if( GIsGuarded )
+		{
 			throw( 1 );
+		}
 		else
+		{
 			appRequestExit( 1 );
+		}
 #endif
 	}
 	void HandleError()
@@ -82,7 +85,8 @@ public:
 			LocalPrint( TEXT("\n\nExiting due to error\n") );
 		}
 		catch( ... )
-		{}
+		{
+		}
 	}
 };
 

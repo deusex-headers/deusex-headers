@@ -125,6 +125,7 @@ private:
 			Out << Char;
 		if( Count>=RLE_LEAD )
 			Out << Count;
+		return 1;
 	}
 public:
 	UBOOL Encode( FArchive& In, FArchive& Out )
@@ -310,7 +311,7 @@ public:
 		{
 			check(!Reader.AtEnd());
 			FHuffman* Node = &Root;
-			while( Node->Ch==-1 )
+			while ( Node->Ch==-1 )
 				Node = Node->Child( Reader.ReadBit() );
 			BYTE B = Node->Ch;
 			Out << B;
@@ -385,31 +386,38 @@ private:
 	{
 		guard(FCodecFull::Code);
 		TArray<BYTE> InData, OutData;
+		FLOAT TotalTime=0.f;
 		for( INT i=0; i<Codecs.Num(); i++ )
 		{
 			FBufferReader Reader(InData);
 			FBufferWriter Writer(OutData);
+			FLOAT StartTime, EndTime;
+			StartTime = appSeconds();
 			(Codecs(First + Step*i)->*Func)( *(i ? &Reader : &In), *(i<Codecs.Num()-1 ? &Writer : &Out) );
+			EndTime = appSeconds() - StartTime;
+			TotalTime += EndTime;
+			GWarn->Logf(TEXT("stage %d: %f secs"), i, EndTime );
 			if( i<Codecs.Num()-1 )
 			{
 				InData = OutData;
 				OutData.Empty();
 			}
 		}
+		GWarn->Logf(TEXT("Total: %f secs"), TotalTime );
 		unguard;
 	}
 public:
 	UBOOL Encode( FArchive& In, FArchive& Out )
 	{
 		guard(FCodecFull::Encode);
-		Code( In, Out, 1, 0, FCodec::Encode );
+		Code( In, Out, 1, 0, &FCodec::Encode );
 		return 0;
 		unguard;
 	}
 	UBOOL Decode( FArchive& In, FArchive& Out )
 	{
 		guard(FCodecFull::Decode);
-		Code( In, Out, -1, Codecs.Num()-1, FCodec::Decode );
+		Code( In, Out, -1, Codecs.Num()-1, &FCodec::Decode );
 		return 1;
 		unguard;
 	}

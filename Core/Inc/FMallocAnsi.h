@@ -6,6 +6,11 @@
 		* Created by Tim Sweeney
 =============================================================================*/
 
+// Include malloc.h for _heapchk.
+#if _MSC_VER
+	#include <malloc.h>
+#endif
+
 //
 // ANSI C memory allocator.
 //

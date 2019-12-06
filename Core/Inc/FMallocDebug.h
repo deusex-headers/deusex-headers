@@ -153,10 +153,16 @@ public:
 			check(GIsCriticalError||*(*Link)->PrevLink==*Link);
 		unguard;
 	}
+#if ENGINE_VERSION==224
+	SIZE_T Msize( void* Ptr )
+	{
+		return _msize( Ptr );
+	}
+#endif
 	void Init()
 	{
 		guard(FMallocDebug::Init);
-		check(!MemInited);
+		//check(!MemInited);
 		MemInited=1;
 		unguard;
 	}

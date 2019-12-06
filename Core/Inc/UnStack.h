@@ -194,7 +194,7 @@ enum EPollSlowFuncs
 // Information about script execution at one stack level.
 //
 struct CORE_API FFrame : public FOutputDevice
-{	
+{
 	// Variables.
 	UStruct*	Node;
 	UObject*	Object;

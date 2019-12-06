@@ -109,6 +109,9 @@ public:
 	FArchive()
 	:	ArVer			(PACKAGE_FILE_VERSION)
 	,	ArNetVer		(ENGINE_NEGOTIATION_VERSION)
+#if UNREAL_TOURNAMENT
+	,	ArLicenseeVer	(PACKAGE_FILE_VERSION_LICENSEE)
+#endif
 	,	ArIsLoading		(0)
 	,	ArIsSaving		(0)
 	,   ArIsTrans		(0)
@@ -122,6 +125,9 @@ public:
 	// Status accessors.
 	INT Ver()				{return ArVer;}
 	INT NetVer()			{return ArNetVer&0x7fffffff;}
+#if UNREAL_TOURNAMENT
+	INT LicenseeVer()		{return ArLicenseeVer;}
+#endif
 	UBOOL IsLoading()		{return ArIsLoading;}
 	UBOOL IsSaving()		{return ArIsSaving;}
 	UBOOL IsTrans()			{return ArIsTrans;}
@@ -193,6 +199,9 @@ protected:
 	// Status variables.
 	INT ArVer;
 	INT ArNetVer;
+#if UNREAL_TOURNAMENT
+	INT ArLicenseeVer;
+#endif
 	UBOOL ArIsLoading;
 	UBOOL ArIsSaving;
 	UBOOL ArIsTrans;

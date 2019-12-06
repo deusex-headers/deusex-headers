@@ -27,9 +27,12 @@
 #define PACKAGE_MIN_VERSION 60
 
 // Defines for easier building of multi game projects. --han
-#define DEFAULT_PACKAGE DeusEx
+#define DEFAULT_PACKAGE TEXT("DeusEx")
 #define DEUS_EX         1
 #define LAUNCH_BAG      1
+
+// Put the no decals define here if desired.
+//#define NODECALS 1
 
 /*-----------------------------------------------------------------------------
 	The End.

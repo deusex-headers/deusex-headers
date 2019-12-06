@@ -110,9 +110,7 @@ BYTE CORE_API GRegisterNative( INT iNative, const Native& Func );
 #define P_GET_DWORD_OPTX(var,def)   DWORD var=def;               Stack.Step( Stack.Object, &var    );
 #define P_GET_DWORD_REF(var)        DWORD var##T=0; GPropAddr=0; Stack.Step( Stack.Object, &var##T ); DWORD* var = GPropAddr ? (DWORD*)GPropAddr:&var##T;
 
-//
-// Bounces a native function to another function.
-//
+// Wraps a native function to another native function.
 #define DECLARE_EXEC_WRAP( SourceClass, TargetClass ,ExecFunction ) \
 	void SourceClass::ExecFunction( FFrame& Stack, RESULT_DECL ) \
 	{ \
@@ -201,7 +199,7 @@ inline FStateFrame::FStateFrame( UObject* InObject )
 {}
 inline const TCHAR* FStateFrame::Describe()
 {
-	return Node ? Node->GetFullName() : TEXT("None");
+	return ObjectFullName(Node);
 }
 
 /*-----------------------------------------------------------------------------

@@ -27,6 +27,7 @@ public:
 	INT GetNumBytes();
 	INT GetNumBits();
 	void SetOverflowed();
+
 private:
 	TArray<BYTE> Buffer;
 	INT   Num;
@@ -51,6 +52,7 @@ public:
 		return Num;
 	}
 	void Pop( FBitWriter& Writer );
+
 private:
 	UBOOL			Overflowed;
 	INT				Num;

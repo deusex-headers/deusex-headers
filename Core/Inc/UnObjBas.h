@@ -884,6 +884,27 @@ inline DWORD GetTypeHash( const UObject* A )
 	return A ? A->GetIndex() : 0;
 }
 
+inline const TCHAR* ObjectName( const UObject* Object )
+{
+	if ( !Object )
+		return TEXT("None");
+	return Object->GetName();
+}
+
+inline const TCHAR* ObjectPathName( const UObject* Object )
+{
+	if ( !Object )
+		return TEXT("None");
+	return Object->GetPathName();
+}
+
+inline const TCHAR* ObjectFullName( const UObject* Object )
+{
+	if ( !Object )
+		return TEXT("None None");
+	return Object->GetFullName();
+}
+
 // Parse an object name in the input stream.
 template< class T > UBOOL ParseObject( const TCHAR* Stream, const TCHAR* Match, T*& Obj, UObject* Outer )
 {

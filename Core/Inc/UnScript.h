@@ -3,7 +3,7 @@
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 
 	Revision history:
-		* Created by Tim Sweeney
+	 * Created by Tim Sweeney
 =============================================================================*/
 
 /*-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ BYTE CORE_API GRegisterNative( INT iNative, const Native& Func );
 #define P_GET_INT_REF(var)            INT   var##T=0; GPropAddr=0;         Stack.Step( Stack.Object, &var##T ); INT*     var = GPropAddr ? (INT    *)GPropAddr:&var##T;
 #define P_GET_FLOAT(var)              FLOAT var=0.f;                       Stack.Step( Stack.Object, &var    );
 #define P_GET_FLOAT_OPTX(var,def)     FLOAT var=def;                       Stack.Step( Stack.Object, &var    );
-#define P_GET_FLOAT_REF(var)          FLOAT var##T=0.0; GPropAddr=0;       Stack.Step( Stack.Object, &var##T ); FLOAT*   var = GPropAddr ? (FLOAT  *)GPropAddr:&var##T;
+#define P_GET_FLOAT_REF(var)          FLOAT var##T=0.f; GPropAddr=0;       Stack.Step( Stack.Object, &var##T ); FLOAT*   var = GPropAddr ? (FLOAT  *)GPropAddr:&var##T;
 #define P_GET_BYTE(var)               BYTE  var=0;                         Stack.Step( Stack.Object, &var    );
 #define P_GET_BYTE_OPTX(var,def)      BYTE  var=def;                       Stack.Step( Stack.Object, &var    );
 #define P_GET_BYTE_REF(var)           BYTE  var##T=0; GPropAddr=0;         Stack.Step( Stack.Object, &var##T ); BYTE*    var = GPropAddr ? (BYTE   *)GPropAddr:&var##T;
@@ -57,6 +57,12 @@ BYTE CORE_API GRegisterNative( INT iNative, const Native& Func );
 #define P_GET_STR(var)                FString var;                         Stack.Step( Stack.Object, &var    );
 #define P_GET_STR_OPTX(var,def)       FString var(def);                    Stack.Step( Stack.Object, &var    );
 #define P_GET_STR_REF(var)            FString var##T; GPropAddr=0;         Stack.Step( Stack.Object, &var##T ); FString* var = GPropAddr ? (FString*)GPropAddr:&var##T;
+#define P_GET_FARRAY(var)             FArray var;                          Stack.Step( Stack.Object, &var    );
+#define P_GET_FARRAY_OPTX(var,def)    FArray var(def);                     Stack.Step( Stack.Object, &var    );
+#define P_GET_FARRAY_REF(var)         FArray var##T; GPropAddr=0;          Stack.Step( Stack.Object, &var##T ); FArray* var = GPropAddr ? (FArray*)GPropAddr:&var##T;
+#define P_GET_TARRAY(typ,var)         TArray<typ> var;                     Stack.Step( Stack.Object, &var    );
+#define P_GET_TARRAY_OPTX(typ,var,def)TArray<typ> var(def);                Stack.Step( Stack.Object, &var    );
+#define P_GET_TARRAY_REF(typ,var)     TArray<typ> var##T; GPropAddr=0;     Stack.Step( Stack.Object, &var##T ); TArray<typ>* var = GPropAddr ? (TArray<typ>*)GPropAddr:&var##T;
 #define P_GET_OBJECT(cls,var)         cls*  var=NULL;                      Stack.Step( Stack.Object, &var    );
 #define P_GET_OBJECT_OPTX(cls,var,def)cls*  var=def;                       Stack.Step( Stack.Object, &var    );
 #define P_GET_OBJECT_REF(cls,var)     cls*  var##T=NULL; GPropAddr=0;      Stack.Step( Stack.Object, &var##T ); cls**    var = GPropAddr ? (cls   **)GPropAddr:&var##T;

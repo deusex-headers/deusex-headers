@@ -26,6 +26,11 @@
 // backwards compatibility. Must be at least PACKAGE_FILE_VERSION.
 #define PACKAGE_MIN_VERSION 60
 
+// Defines for easier building of multi game projects. --han
+#define DEFAULT_PACKAGE DeusEx
+#define DEUS_EX         1
+#define LAUNCH_BAG      1
+
 /*-----------------------------------------------------------------------------
 	The End.
 -----------------------------------------------------------------------------*/

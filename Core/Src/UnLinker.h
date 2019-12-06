@@ -310,9 +310,10 @@ class CORE_API ULinker : public UObject
 //
 // A file loader.
 //
+DECLARE_AUTOCLASS_NOEXPORT(ULinkerLoad)
 class ULinkerLoad : public ULinker, public FArchive
 {
-	DECLARE_CLASS(ULinkerLoad,ULinker,CLASS_Transient)
+	DECLARE_CLASS_NOEXPORT(ULinkerLoad,ULinker,CLASS_Transient)
 	NO_DEFAULT_CONSTRUCTOR(ULinkerLoad)
 
 	// Friends.
@@ -1015,6 +1016,7 @@ private:
 		unguardf(( TEXT("(%s %i))"), GetFullName(), Tell() ));
 	}
 };
+CORE_API UClass* autoclassULinkerLoad;
 
 /*----------------------------------------------------------------------------
 	ULinkerSave.
@@ -1023,9 +1025,10 @@ private:
 //
 // A file saver.
 //
+DECLARE_AUTOCLASS_NOEXPORT(ULinkerSave)
 class ULinkerSave : public ULinker, public FArchive
 {
-	DECLARE_CLASS(ULinkerSave,ULinker,CLASS_Transient);
+	DECLARE_CLASS_NOEXPORT(ULinkerSave,ULinker,CLASS_Transient);
 	NO_DEFAULT_CONSTRUCTOR(ULinkerSave);
 
 	// Friends.
@@ -1117,6 +1120,7 @@ class ULinkerSave : public ULinker, public FArchive
 		Saver->Serialize( V, Length );
 	}
 };
+CORE_API UClass* autoclassULinkerSave;
 
 /*----------------------------------------------------------------------------
 	The End.

@@ -420,6 +420,71 @@ public: \
 		IMPLEMENT_PACKAGE_PLATFORM(pkg)
 #endif
 
+/*----------------------------------------------------------------------------
+	Macros to be able to access parts of non exported classes.
+
+	This is mostly intended for UPendingLevel/UNetPendingLevel, so at least
+	StaticClass() function can be used.
+----------------------------------------------------------------------------*/
+
+// Place this before class declaration.
+#define DECLARE_AUTOCLASS_NOEXPORT( TClass ) \
+	extern "C" DLL_IMPORT UClass* autoclass##TClass;
+
+// Declare the base UObject class.
+#define DECLARE_BASE_CLASS_NOEXPORT( TClass, TSuperClass, TStaticFlags ) \
+public: \
+	/* Identification */ \
+	enum \
+	{ \
+		StaticClassFlags = TStaticFlags \
+	}; \
+private: \
+	static UClass PrivateStaticClass; \
+public: \
+	typedef TSuperClass Super; \
+	typedef TClass ThisClass; \
+	static UClass* StaticClass() \
+	{ \
+		return autoclass##TClass; \
+	} \
+	void* operator new( size_t Size, UObject* Outer=(UObject*)GetTransientPackage(), FName Name=NAME_None, DWORD SetFlags=0 ) \
+	{ \
+		return StaticAllocateObject( StaticClass(), Outer, Name, SetFlags ); \
+	} \
+	void* operator new( size_t Size, EInternal* Mem ) \
+	{ \
+		return (void*)Mem; \
+	} \
+
+// Declare a non exported class.
+#define DECLARE_CLASS_NOEXPORT( TClass, TSuperClass, TStaticFlags ) \
+	DECLARE_BASE_CLASS_NOEXPORT( TClass, TSuperClass, TStaticFlags ) \
+	friend FArchive &operator<<( FArchive& Ar, TClass*& Res ) \
+	{ \
+		return Ar << *(UObject**)&Res; \
+	} \
+	virtual ~TClass() \
+	{ \
+		ConditionalDestroy(); \
+	} \
+	static void InternalConstructor( void* X ) \
+	{ \
+		new( (EInternal*)X )TClass(); \
+	}
+
+// Declare a non exported abstract class.
+#define DECLARE_ABSTRACT_CLASS_NOEXPORT( TClass, TSuperClass, TStaticFlags ) \
+	DECLARE_BASE_CLASS_NOEXPORT( TClass, TSuperClass, TStaticFlags | CLASS_Abstract ) \
+	friend FArchive &operator<<( FArchive& Ar, TClass*& Res ) \
+	{ \
+		return Ar << *(UObject**)&Res; \
+	} \
+	virtual ~TClass() \
+	{ \
+		ConditionalDestroy(); \
+	}
+
 /*-----------------------------------------------------------------------------
 	UObject.
 -----------------------------------------------------------------------------*/

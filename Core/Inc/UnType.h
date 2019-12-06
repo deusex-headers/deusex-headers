@@ -588,7 +588,20 @@ inline UBOOL UStruct::StructCompare( const void* A, const void* B )
 -----------------------------------------------------------------------------*/
 
 #define CPP_PROPERTY(name) \
-	EC_CppProperty, (SIZE_T)&((ThisClass*)NULL)->name - (SIZE_T)NULL
+	EC_CppProperty, (PTRDIFF_T)&((ThisClass*)NULL)->name - (PTRDIFF_T)NULL
+
+#define PRE_PROPERTY_BITFIELD(TClass) \
+	union \
+	{ \
+		BITFIELD TClass##ConfigurationBitfield; \
+		struct \
+		{ \
+
+#define POST_PROPERTY_BITFIELD \
+		};\
+	};
+
+#define CPP_PROPERTY_BITFIELD(TClass) CPP_PROPERTY(TClass##ConfigurationBitfield)
 
 /*-----------------------------------------------------------------------------
 	The End.

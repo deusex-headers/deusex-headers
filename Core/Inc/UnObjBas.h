@@ -914,6 +914,30 @@ template< class T, class U > T* CastChecked( U* Src )
 	return (T*)Src;
 }
 
+// Cast only if the classes are the exact same.
+template< class T > T* ExactCast( UObject* Src )
+{
+	return Src && Src->GetClass()==T::StaticClass() ? (T*)Src : NULL;
+}
+template< class T, class U > T* ExactCastChecked( U* Src )
+{
+	if ( !Src || Src->GetClass()!=T::StaticClass() )
+		appErrorf( TEXT("ExactCast of %s to %s failed"), ObjectFullName(Src), T::StaticClass()->GetName() );
+	return (T*)Src;
+}
+
+// Cast if beween (including) TParent and it's subclass TChild.
+template< class TParent, class TChild > TParent* LimitedCast( UObject* Src )
+{
+	return Src && Src->IsA(T::StaticClass()) && TChild::StaticClass()->IsChildOf(Src->GetClass()) ? (T*)Src : NULL;
+}
+template< class TParent, class TChild, class U > TParent* LimitedCastChecked( U* Src ) // Why U?
+{
+	if ( !Src || !Src->IsA(T::StaticClass()) || !TChild::StaticClass()->IsChildOf(Src->GetClass()) )
+		appErrorf( TEXT("LimitedCast of %s to %s:s% failed"), ObjectFullName(Src), TParent::StaticClass()->GetName(), TChild::StaticClass()->GetName() );
+	return (TParent*)Src;
+}
+
 // Construct an object of a particular class.
 template< class T > T* ConstructObject( UClass* Class, UObject* Outer=(UObject*)-1, FName Name=NAME_None, DWORD SetFlags=0 )
 {

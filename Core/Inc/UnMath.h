@@ -1793,7 +1793,7 @@ inline FVector FRotator::Vector()
 	Warning: likely not portable, and useful on Pentium class processors only.
 -----------------------------------------------------------------------------*/
 
-#if !_REALLY_WANT_FP32_HACKS // You really should not be using these anymore --han
+#if defined(_REALLY_WANT_FLOATING_POINT_INT_HACKS) // You really should not be using these anymore --han
 inline UBOOL IsSmallerPositiveFloat( FLOAT F1, FLOAT F2 )
 {
 	return (*(DWORD*)&F1)<(*(DWORD*)&F2);
@@ -1839,7 +1839,7 @@ inline FLOAT ClampPositiveFloat(float F0, float F1, float F2)
 	else if	( (*(DWORD*)&F0) > (*(DWORD*)&Range)) F0 = Range;\
 }
 
-#endif //_REALLY_WANT_FP32_HACKS.
+#endif // ndef _REALLY_WANT_FLOATING_POINT_INT_HACKS.
 
 /*-----------------------------------------------------------------------------
 	The End.

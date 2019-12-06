@@ -82,8 +82,6 @@ CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... );
 	#define appPrintf printf
 #endif
 
-inline void appSanityFail() { appErrorf( TEXT("Sanity test failed. Report this as a bug.") ); } // It feels already wrong to add this. --han
-
 /*-----------------------------------------------------------------------------
 	Misc.
 -----------------------------------------------------------------------------*/
@@ -429,7 +427,7 @@ CORE_API UBOOL ParseParam( const TCHAR* Stream, const TCHAR* Param );
 -----------------------------------------------------------------------------*/
 
 // So newer compilers in theory could do a better job.
-#if __REALLY_WANT_UNFILE_MATH || 1
+#if defined(_REALLY_WANT_CORE_TRIGONOMETRY_AND_FRIENDS) || 1
 	CORE_API DOUBLE appExp( DOUBLE Value );
 	CORE_API DOUBLE appLoge( DOUBLE Value );
 	CORE_API DOUBLE appFmod( DOUBLE A, DOUBLE B );
@@ -480,7 +478,7 @@ CORE_API INT appCeil( FLOAT Value );
 COREI_API appIsFinite( DOUBLE Value );
 #endif
 
-#if __REALLY_WANT_UNFILEI_MATH || 1
+#if defined(_REALLY_WANT_CORE_TRIGONOMETRY_AND_FRIENDS) || 1
 	COREI_API DOUBLE appAcos( DOUBLE Value );
 	COREI_API DOUBLE appAsin( DOUBLE Value );
 #else

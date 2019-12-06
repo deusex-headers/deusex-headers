@@ -408,7 +408,9 @@ private:
 	// Private systemwide variables.
 	static UBOOL			GObjInitialized;	// Whether initialized.
 	static UBOOL            GObjNoRegister;		// Registration disable.
-   static UBOOL         GObjInGarbageCollection; //whether in garbage collection or not.
+#if DEUS_EX
+	static UBOOL         GObjInGarbageCollection; // Whether in garbage collection or not.
+#endif
 	static INT				GObjBeginLoadCount;	// Count for BeginLoad multiple loads.
 	static INT				GObjRegisterCount;  // ProcessRegistrants entry counter.
 	static INT				GImportCount;		// Imports for EndLoad optimization.
@@ -450,12 +452,16 @@ public:
 	UObject& operator=( const UObject& );
 	void StaticConstructor();
 	static void InternalConstructor( void* X )
-		{ new( (EInternal*)X )UObject(); }
+	{
+		new((EInternal*)X) UObject();
+	}
 
 	// Destructors.
 	virtual ~UObject();
 	void operator delete( void* Object, size_t Size )
-		{guard(UObject::operator delete); appFree( Object ); unguard;}
+	{
+		appFree( Object );
+	}
 
 	// FUnknown interface.
 	virtual DWORD STDCALL QueryInterface( const FGuid& RefIID, void** InterfacePtr );
@@ -523,10 +529,12 @@ public:
 	{
 		return (ObjName.GetIndex() ^ Outer) & (ARRAY_COUNT(GObjHash)-1);
 	}
-   static UBOOL IsInGarbageCollection()
-   {
-      return GObjInGarbageCollection;
-   }
+#if DEUS_EX
+	static UBOOL IsInGarbageCollection()
+	{
+		return GObjInGarbageCollection;
+	}
+#endif
 
 	// Functions.
 	void AddToRoot();

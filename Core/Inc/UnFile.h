@@ -351,47 +351,44 @@ inline UBOOL appAnsiIsAlnum( ANSICHAR c )
 	String functions.
 -----------------------------------------------------------------------------*/
 
-CORE_API const ANSICHAR* appToAnsi( const TCHAR* Str );
-CORE_API const UNICHAR* appToUnicode( const TCHAR* Str );
-CORE_API const TCHAR* appFromAnsi( const ANSICHAR* Str );
-CORE_API const TCHAR* appFromUnicode( const UNICHAR* Str );
-CORE_API UBOOL appIsPureAnsi( const TCHAR* Str );
-
-CORE_API TCHAR* appStrcpy( TCHAR* Dest, const TCHAR* Src );
-CORE_API INT appStrcpy( const TCHAR* String );
-CORE_API INT appStrlen( const TCHAR* String );
-CORE_API TCHAR* appStrstr( const TCHAR* String, const TCHAR* Find );
-CORE_API TCHAR* appStrchr( const TCHAR* String, INT c );
-CORE_API TCHAR* appStrcat( TCHAR* Dest, const TCHAR* Src );
-CORE_API INT appStrcmp( const TCHAR* String1, const TCHAR* String2 );
-CORE_API INT appStricmp( const TCHAR* String1, const TCHAR* String2 );
-CORE_API INT appStrncmp( const TCHAR* String1, const TCHAR* String2, INT Count );
-CORE_API TCHAR* appStaticString1024();
-CORE_API ANSICHAR* appAnsiStaticString1024();
-
-CORE_API const TCHAR* appSpc( int Num );
-CORE_API TCHAR* appStrncpy( TCHAR* Dest, const TCHAR* Src, int Max);
-CORE_API TCHAR* appStrncat( TCHAR* Dest, const TCHAR* Src, int Max);
-CORE_API TCHAR* appStrupr( TCHAR* String );
-CORE_API const TCHAR* appStrfind(const TCHAR* Str, const TCHAR* Find);
-CORE_API DWORD appStrCrc( const TCHAR* Data );
-CORE_API DWORD appStrCrcCaps( const TCHAR* Data );
-CORE_API INT appAtoi( const TCHAR* Str );
-CORE_API FLOAT appAtof( const TCHAR* Str );
-CORE_API INT appStrtoi( const TCHAR* Start, TCHAR** End, INT Base );
+// Comparison.
+CORE_API INT appStrcmp( const TCHAR* A, const TCHAR* B );
+CORE_API INT appStricmp( const TCHAR* A, const TCHAR* B );
+CORE_API INT appStrncmp( const TCHAR* A, const TCHAR* B, INT Count );
 CORE_API INT appStrnicmp( const TCHAR* A, const TCHAR* B, INT Count );
-CORE_API INT appSprintf( TCHAR* Dest, const TCHAR* Fmt, ... );
 
-#if _MSC_VER
-	CORE_API INT appGetVarArgs( TCHAR* Dest, INT Count, const TCHAR*& Fmt );
-#else
-	#include <stdio.h>
-	#include <stdarg.h>
+// Copy.
+CORE_API TCHAR* appStrcpy( TCHAR* Dest, const TCHAR* Src );
+CORE_API TCHAR* appStrncpy( TCHAR* Dest, const TCHAR* Src, INT Max );
+CORE_API INT appStrcpy( const TCHAR* Str );
+
+// Length.
+CORE_API INT appStrlen( const TCHAR* Str );
+
+// Concatenation.
+CORE_API TCHAR* appStrcat( TCHAR* Dest, const TCHAR* Src );
+CORE_API TCHAR* appStrncat( TCHAR* Dest, const TCHAR* Src, INT Max );
+
+// Search.
+CORE_API TCHAR* appStrstr( const TCHAR* Str, const TCHAR* Find );
+CORE_API TCHAR* appStrchr( const TCHAR* Str, INT c );
+
+// Static strings. Use appDynamicString instead.
+#if defined(_REALLY_WANT_STATIC_STRING)
+	CORE_API TCHAR* appStaticString1024();
+	CORE_API ANSICHAR* appAnsiStaticString1024();
 #endif
 
-typedef int QSORT_RETURN;
-typedef QSORT_RETURN(CDECL* QSORT_COMPARE)( const void* A, const void* B );
-CORE_API void appQsort( void* Base, INT Num, INT Width, QSORT_COMPARE Compare );
+// Formating.
+CORE_API INT appSprintf( TCHAR* Dest, const TCHAR* Fmt, ... ); // CoreI will provide fixed version.
+CORE_API INT appGetVarArgs( TCHAR* Dest, INT Count, const TCHAR*& Fmt ); // CoreI will provide fixed version.
+
+// Upper/Lower.
+CORE_API TCHAR* appStrupr( TCHAR* Str );
+
+// Atoi/Atof.
+CORE_API INT appAtoi( const TCHAR* Str );
+CORE_API FLOAT appAtof( const TCHAR* Str );
 
 // Case insensitive string hash functions.
 inline DWORD appStrihash( const TCHAR* Data )
@@ -411,6 +408,33 @@ inline DWORD appStrihash( const TCHAR* Data )
 	return Hash;
 	unguardSlow;
 }
+inline DWORD appAnsiStrihash( const ANSICHAR* Data )
+{
+	guardSlow(appAnsiStrihash);
+	DWORD Hash=0;
+	while( *Data )
+	{
+		ANSICHAR Ch = appAnsiToUpper(*Data++);
+		BYTE     B  = (BYTE)Ch;
+		Hash        = ((Hash >> 8) & 0x00FFFFFF) ^ GCRCTable[(Hash ^ B) & 0x000000FF];
+	}
+	return Hash;
+	unguardSlow;
+}
+
+// Misc.
+CORE_API const TCHAR* appStrfind(const TCHAR* Str, const TCHAR* Find);
+CORE_API const TCHAR* appSpc( INT Num ); // CoreI will provide fixed version.
+CORE_API DWORD appStrCrc( const TCHAR* Data );
+CORE_API DWORD appStrCrcCaps( const TCHAR* Data );
+CORE_API INT appStrtoi( const TCHAR* Start, TCHAR** End, INT Base );
+
+// To/From.
+CORE_API const ANSICHAR* appToAnsi( const TCHAR* Str );
+CORE_API const UNICHAR* appToUnicode( const TCHAR* Str );
+CORE_API const TCHAR* appFromAnsi( const ANSICHAR* Str );
+CORE_API const TCHAR* appFromUnicode( const UNICHAR* Str );
+CORE_API UBOOL appIsPureAnsi( const TCHAR* Str );
 
 /*-----------------------------------------------------------------------------
 	Parsing functions.
@@ -441,6 +465,14 @@ CORE_API void ParseNext( const TCHAR** Stream );
 CORE_API UBOOL ParseParam( const TCHAR* Stream, const TCHAR* Param );
 
 /*-----------------------------------------------------------------------------
+	QSort.
+-----------------------------------------------------------------------------*/
+
+typedef INT QSORT_RETURN;
+typedef QSORT_RETURN(CDECL* QSORT_COMPARE)( const void* A, const void* B );
+CORE_API void appQsort( void* Base, INT Num, INT Width, QSORT_COMPARE Compare );
+
+/*-----------------------------------------------------------------------------
 	Math functions.
 -----------------------------------------------------------------------------*/
 
@@ -469,6 +501,8 @@ CORE_API UBOOL ParseParam( const TCHAR* Stream, const TCHAR* Param );
 	#define appPow(a,b)   pow(a,b)
 #endif
 
+// appRand only returns numbers up to APP_RAND_MAX.
+#define APP_RAND_MAX 0x7FFF
 CORE_API INT appRand();
 CORE_API FLOAT appFrand();
 
@@ -487,6 +521,22 @@ CORE_API INT appFloor( FLOAT Value );
 #if !DEFINED_appCeil
 CORE_API INT appCeil( FLOAT Value );
 #endif
+
+// 0 is not considered positive by this function.
+inline UBOOL appIsPowerOfTwo( INT i, UBOOL Positive=1 )
+{
+	guardSlow(appIsPowerOfTwo);
+	if ( i<=0 )
+	{
+		if ( Positive )
+			return 0;
+		
+		// We don't do imaginary integer here.
+		return 0;
+	}
+	return !(i&(i-1));
+	unguardSlow;
+}
 
 /*-----------------------------------------------------------------------------
 	Math functions implemented inside CoreI.

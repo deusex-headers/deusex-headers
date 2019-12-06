@@ -375,8 +375,8 @@ extern "C" DLL_EXPORT TCHAR GPackage[];
 #include "UnClass.h"		// Class definition.
 #include "UnType.h"			// Base property type.
 #include "UnScript.h"		// Script class.
-#include "UFactory.h"		// Factory definition.
-#include "UExporter.h"		// Exporter definition.
+#include "UnFactory.h"		// Factory definition.
+#include "UnExporter.h"		// Exporter definition.
 #include "UnCache.h"		// Cache based memory management.
 #include "UnMem.h"			// Stack based memory management.
 #include "UnCid.h"          // Cache ID's.

@@ -1,5 +1,5 @@
 /*=============================================================================
-	UFactory.h: Factory class definition.
+	UnFactory.h: Factory class definition.
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 
 	Revision history:

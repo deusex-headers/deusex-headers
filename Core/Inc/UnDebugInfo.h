@@ -13,7 +13,7 @@
 // UDebugInfo
 // is really a bridge class to connect UC to Cpp
 
-class CORE_API UDebugInfo: public UObject
+class CORE_API UDebugInfo : public UObject
 {
 	DECLARE_CLASS(UDebugInfo, UObject, 0)
 

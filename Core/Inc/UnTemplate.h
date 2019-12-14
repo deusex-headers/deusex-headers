@@ -189,19 +189,18 @@ inline DWORD GetTypeHash( const TCHAR* S )
 {
 	return appStrihash(S);
 }
-#define ExchangeB(A,B) {UBOOL T=A; A=B; B=T;}
+#define ExchangeB(A,B) { UBOOL T=A; A=B; B=T; }
 
 /*----------------------------------------------------------------------------
 	Standard macros.
 ----------------------------------------------------------------------------*/
 
 // Number of elements in an array.
-#define ARRAY_COUNT( array ) \
-	( sizeof(array) / sizeof((array)[0]) )
+#define ARRAY_COUNT(array) \
+	( sizeof(array)/sizeof((array)[0]) )
 
-// Offset of a struct member.
-#define STRUCT_OFFSET( struc, member ) \
-	( (INT)&((struc*)NULL)->member )
+#define STRUCT_OFFSET(struc,member) \
+	( (SIZE_T)&((struc*)NULL)->member )
 
 /*-----------------------------------------------------------------------------
 	Allocators.
@@ -217,7 +216,7 @@ template <class T> class TAllocator
 //
 // Base dynamic array.
 //
-class CORE_API FArray
+class FArray
 {
 public:
 	void* GetData()
@@ -234,13 +233,22 @@ public:
 	}
 	INT Num() const
 	{
+		guardSlow(FArray::Num);
 		checkSlow(ArrayNum>=0);
 		checkSlow(ArrayMax>=ArrayNum);
+
 		return ArrayNum;
+		unguardSlow;
 	}
 	void InsertZeroed( INT Index, INT Count, INT ElementSize )
 	{
 		guardSlow(FArray::InsertZeroed);
+		checkSlow(ElementSize>0);
+		checkSlow(Index>=0);
+		checkSlow(Index<=ArrayNum);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
+
 		Insert( Index, Count, ElementSize );
 		appMemzero( (BYTE*)Data+Index*ElementSize, Count*ElementSize );
 		unguardSlow;
@@ -249,6 +257,7 @@ public:
 	{
 		guardSlow(FArray::Insert);
 		checkSlow(Count>=0);
+		checkSlow(ElementSize>0);
 		checkSlow(ArrayNum>=0);
 		checkSlow(ArrayMax>=ArrayNum);
 		checkSlow(Index>=0);
@@ -273,6 +282,7 @@ public:
 	{
 		guardSlow(FArray::Add);
 		checkSlow(Count>=0);
+		checkSlow(ElementSize>0);
 		checkSlow(ArrayNum>=0);
 		checkSlow(ArrayMax>=ArrayNum);
 
@@ -289,6 +299,10 @@ public:
 	INT AddZeroed( INT ElementSize, INT n=1 )
 	{
 		guardSlow(FArray::AddZeroed);
+		checkSlow(ElementSize>0);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
+
 		INT Index = Add( n, ElementSize );
 		appMemzero( (BYTE*)Data+Index*ElementSize, n*ElementSize );
 		return Index;
@@ -297,8 +311,10 @@ public:
 	void Shrink( INT ElementSize )
 	{
 		guardSlow(FArray::Shrink);
+		checkSlow(ElementSize>0);
 		checkSlow(ArrayNum>=0);
 		checkSlow(ArrayMax>=ArrayNum);
+
 		if( ArrayMax != ArrayNum )
 		{
 			ArrayMax = ArrayNum;
@@ -306,29 +322,42 @@ public:
 		}
 		unguardSlow;
 	}
+	void SetSize( INT Count, INT ElementSize )
+	{
+		guardSlow(FArray::SetSize);
+		checkSlow(Count>=0);
+		checkSlow(ElementSize>0);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
+		ArrayNum = ArrayMax = Count;
+		Realloc( ElementSize );
+		unguardSlow;
+	}
 	void Empty( INT ElementSize, INT Slack=0 )
 	{
 		guardSlow(FArray::Empty);
+		checkSlow(ElementSize>0);
+		checkSlow(Slack>=0);
+		checkSlow(ArrayNum>=0);
+		checkSlow(ArrayMax>=ArrayNum);
 		ArrayNum = 0;
 		ArrayMax = Slack;
 		Realloc( ElementSize );
 		unguardSlow;
 	}
 	FArray()
-	:	ArrayNum( 0 )
+	:	Data	( NULL )
+	,	ArrayNum( 0 )
 	,	ArrayMax( 0 )
-	,	Data	( NULL )
 	{}
 	FArray( ENoInit )
 	{}
 	~FArray()
 	{
-		guardSlow(FArray::~FArray);
 		if( Data )
 			appFree( Data );
 		Data = NULL;
 		ArrayNum = ArrayMax = 0;
-		unguardSlow;
 	}
 	void CountBytes( FArchive& Ar, INT ElementSize )
 	{
@@ -336,15 +365,17 @@ public:
 		Ar.CountBytes( ArrayNum*ElementSize, ArrayMax*ElementSize );
 		unguardSlow;
 	}
-	void Remove( INT Index, INT Count, INT ElementSize );
+	CORE_API void Remove( INT Index, INT Count, INT ElementSize );
 protected:
-	void Realloc( INT ElementSize );
+	CORE_API void Realloc( INT ElementSize ); // !! CoreI will provide own version.
 	FArray( INT InNum, INT ElementSize )
-	:	ArrayNum( InNum )
+	:	Data    ( NULL  )
+	,	ArrayNum( InNum )
 	,	ArrayMax( InNum )
-	,	Data    ( NULL  )
 	{
+		guardSlow(FArray::FArray);
 		Realloc( ElementSize );
+		unguardSlow;
 	}
 	void* Data;
 	INT	  ArrayNum;
@@ -379,9 +410,11 @@ public:
 			for( INT i=0; i<ArrayNum; i++ )
 				(*this)(i) = Other(i);
 		}
-		else
+		else if ( ArrayNum>0 )
 		{
+			guardSlow(DoCopy);
 			appMemcpy( &(*this)(0), &Other(0), ArrayNum * sizeof(T) );
+			unguardSlow;
 		}
 		unguardSlow;
 	}
@@ -394,12 +427,14 @@ public:
 		checkSlow(ArrayMax>=ArrayNum);
 		Remove( 0, ArrayNum );
 	}
-    T& operator()( INT i )
+	T& operator()( INT i )
 	{
 		guardSlow(TArray::operator());
 		checkSlow(i>=0);
 		checkSlow(i<=ArrayNum);
 		checkSlow(ArrayMax>=ArrayNum);
+		checkSlow(ArrayMax>0);
+		checkSlow(Data);
 		return ((T*)Data)[i];
 		unguardSlow;
 	}
@@ -409,6 +444,8 @@ public:
 		checkSlow(i>=0);
 		checkSlow(i<=ArrayNum);
 		checkSlow(ArrayMax>=ArrayNum);
+		checkSlow(ArrayMax>0);
+		checkSlow(Data);
 		return ((T*)Data)[i];
 		unguardSlow;
 	}
@@ -475,12 +512,15 @@ public:
 				A.ArrayMax = A.ArrayNum;
 				A.Realloc( sizeof(T) );
 			}
-			Ar.Serialize( &A(0), A.Num() );
+			if ( A.Num() > 0 )
+				Ar.Serialize( &A(0), A.Num() );
+			//else
+				//Ar.Serialize( NULL, 0 );
 		}
 		else if( Ar.IsLoading() )
 		{
 			// Load array.
-			INT NewNum;
+			INT NewNum=0;
 			Ar << AR_INDEX(NewNum);
 			A.Empty( NewNum );
 			for( INT i=0; i<NewNum; i++ )
@@ -509,6 +549,13 @@ public:
 		guardSlow(TArray::Add);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
 		return FArray::Add( n, sizeof(T) );
+		unguardSlow;
+	}
+	void SetSize( INT n=1 )
+	{
+		guardSlow(TArray::SetSize);
+		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
+		FArray::SetSize( n, sizeof(T) );
 		unguardSlow;
 	}
 	void Insert( INT Index, INT Count=1 )
@@ -548,6 +595,27 @@ public:
 	}
 
 	// Functions dependent on Add, Remove.
+	TArray& operator+( const TArray& Other )
+	{
+		guardSlow(TArray::operator=);
+		if( this != &Other )
+		{
+			for( INT i=0; i<Other.ArrayNum; i++ )
+				new( *this )T( Other(i) );
+		}
+		return *this;
+		unguardSlow;
+	}
+	TArray& operator+=( const TArray& Other )
+	{
+		guardSlow(TArray::operator=);
+		if( this != &Other )
+		{
+			*this = *this + Other;
+		}
+		return *this;
+		unguardSlow;
+	}
 	TArray& operator=( const TArray& Other )
 	{
 		guardSlow(TArray::operator=);
@@ -564,9 +632,15 @@ public:
 	{
 		guardSlow(TArray::AddItem);
 		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
-		INT Index=Add();
+		new(*this) T(Item);
+		return Num()-1;
+		unguardSlow;
+	}
+	void InsertItem( INT Index, const T& Item )
+	{
+		guardSlow(TArray::InsertItem);
+		Insert( Index );
 		(*this)(Index)=Item;
-		return Index;
 		unguardSlow;
 	}
 	INT AddZeroed( INT n=1 )
@@ -615,23 +689,30 @@ public:
 		INT Index;
 	};
 };
+template<class T> struct TArrayNoInit : public TArray<T>
+{
+	TArrayNoInit()
+	: TArray<T>( E_NoInit )
+	{}
+	TArrayNoInit& operator=( const TArrayNoInit& Other )
+	{
+		TArray<T>::operator=( Other );
+		return *this;
+	}
+};
 
 //
 // Array operator news.
 //
 template <class T> void* operator new( size_t Size, TArray<T>& Array )
 {
-	guardSlow(TArray::operator new);
 	INT Index = Array.FArray::Add(1,sizeof(T));
 	return &Array(Index);
-	unguardSlow;
 }
 template <class T> void* operator new( size_t Size, TArray<T>& Array, INT Index )
 {
-	guardSlow(TArray::operator new);
 	Array.FArray::Insert(Index,1,sizeof(T));
 	return &Array(Index);
-	unguardSlow;
 }
 
 //
@@ -675,7 +756,7 @@ public:
 	{
 		guardSlow(TTransArray::Add);
 		INT Index = TArray<T>::Add( Count );
-		if( GUndo )
+		if ( GUndo )
 			GUndo->SaveArray( Owner, this, Index, Count, 1, sizeof(T), SerializeItem, DestructItem );
 		return Index;
 		unguardSlow;
@@ -684,14 +765,14 @@ public:
 	{
 		guardSlow(TTransArray::InsertZeroed);
 		FArray::Insert( Index, Count, sizeof(T) );
-		if( GUndo )
+		if ( GUndo )
 			GUndo->SaveArray( Owner, this, Index, Count, 1, sizeof(T), SerializeItem, DestructItem );
 		unguardSlow;
 	}
 	void Remove( INT Index, INT Count=1 )
 	{
 		guardSlow(TTransArray::Remove);
-		if( GUndo )
+		if ( GUndo )
 			GUndo->SaveArray( Owner, this, Index, Count, -1, sizeof(T), SerializeItem, DestructItem );
 		TArray<T>::Remove( Index, Count );
 		unguardSlow;
@@ -699,7 +780,7 @@ public:
 	void Empty( INT Slack=0 )
 	{
 		guardSlow(TTransArray::Empty);
-		if( GUndo )
+		if ( GUndo )
 			GUndo->SaveArray( Owner, this, 0, ArrayNum, -1, sizeof(T), SerializeItem, DestructItem );
 		TArray<T>::Empty( Slack );
 		unguardSlow;
@@ -721,9 +802,9 @@ public:
 	INT AddItem( const T& Item )
 	{
 		guardSlow(TTransArray::AddItem);
-		INT Index=Add();
-		(*this)(Index)=Item;
-		return Index;
+		checkSlow(!TTypeInfo<T>::DefinitelyNeedsDestructor());
+		new(*this) T(Item);
+		return Num()-1;
 		unguardSlow;
 	}
 	INT AddZeroed( INT n=1 )
@@ -737,8 +818,8 @@ public:
 	INT AddUniqueItem( const T& Item )
 	{
 		guardSlow(TTransArray::AddUniqueItem);
-		for( INT Index=0; Index<ArrayNum; Index++ )
-			if( (*this)(Index)==Item )
+		for ( INT Index=0; Index<ArrayNum; Index++ )
+			if ( (*this)(Index)==Item )
 				return Index;
 		return AddItem( Item );
 		unguardSlow;
@@ -747,8 +828,8 @@ public:
 	{
 		guardSlow(TTransArray::RemoveItem);
 		INT OriginalNum=ArrayNum;
-		for( INT Index=0; Index<ArrayNum; Index++ )
-			if( (*this)(Index)==Item )
+		for ( INT Index=0; Index<ArrayNum; Index++ )
+			if ( (*this)(Index)==Item )
 				Remove( Index-- );
 		return OriginalNum - ArrayNum;
 		unguardSlow;
@@ -830,7 +911,8 @@ template <class T> void* operator new( size_t Size, TTransArray<T>& Array, INT I
 class FLazyLoader
 {
 	friend class ULinkerLoad;
-protected:
+//protected:
+public:
 	FArchive*	 SavedAr;
 	INT          SavedPos;
 public:
@@ -854,13 +936,11 @@ public:
 	{}
 	~TLazyArray()
 	{
-		guard(TLazyArray::~TLazyArray);
 		if( SavedAr )
 			SavedAr->DetachLazyLoader( this );
-		unguard;
 	}
 #if LOAD_ON_DEMAND /* Breaks because of untimely accesses of operator() !! */
-    T& operator()( INT i )
+	T& operator()( INT i )
 	{
 		guardSlow(TArray::operator());
 		checkSlow(i>=0);
@@ -924,7 +1004,7 @@ public:
 			{
 				//oldver: Handles dynamic arrays of fixed-length serialized items only.
 				Ar.AttachLazyLoader( &This );
-				INT SkipCount;
+				INT SkipCount=0;
 				Ar << AR_INDEX(SkipCount);
 				SeekPos = Ar.Tell() + SkipCount*sizeof(T);
 					
@@ -975,7 +1055,7 @@ template <class T> void TLazyArray<T>::Unload()
 //
 // A dynamically sizeable string.
 //
-class CORE_API FString : protected TArray<TCHAR>
+class FString : protected TArray<TCHAR>
 {
 public:
 	FString()
@@ -988,7 +1068,7 @@ public:
 			appMemcpy( &(*this)(0), &Other(0), ArrayNum*sizeof(TCHAR) );
 	}
 	FString( const TCHAR* In )
-	: TArray<TCHAR>( *In ? (appStrlen(In)+1) : 0 )
+	: TArray<TCHAR>( (In && *In) ? (appStrlen(In)+1) : 0 )
 	{
 		if( ArrayNum )
 			appMemcpy( &(*this)(0), In, ArrayNum*sizeof(TCHAR) );
@@ -996,35 +1076,68 @@ public:
 	FString( ENoInit )
 	: TArray<TCHAR>( E_NoInit )
 	{}
-	explicit FString( BYTE   Arg, INT Digits=1 );
-	explicit FString( SBYTE  Arg, INT Digits=1 );
-	explicit FString( _WORD  Arg, INT Digits=1 );
-	explicit FString( SWORD  Arg, INT Digits=1 );
-	explicit FString( INT    Arg, INT Digits=1 );
-	explicit FString( DWORD  Arg, INT Digits=1 );
-	explicit FString( FLOAT  Arg, INT Digits=1, INT RightDigits=0, UBOOL LeadZero=1 );
-	explicit FString( DOUBLE Arg, INT Digits=1, INT RightDigits=0, UBOOL LeadZero=1 );
+	// What is this?
+	explicit CORE_API FString( BYTE   Arg, INT Digits=1 );
+	explicit CORE_API FString( SBYTE  Arg, INT Digits=1 );
+	explicit CORE_API FString( _WORD  Arg, INT Digits=1 );
+	explicit CORE_API FString( SWORD  Arg, INT Digits=1 );
+	explicit CORE_API FString( INT    Arg, INT Digits=1 );
+	explicit CORE_API FString( DWORD  Arg, INT Digits=1 );
+	explicit CORE_API FString( FLOAT  Arg, INT Digits=1, INT RightDigits=0, UBOOL LeadZero=1 );
+	explicit CORE_API FString( DOUBLE Arg, INT Digits=1, INT RightDigits=0, UBOOL LeadZero=1 );
 	FString& operator=( const TCHAR* Other )
 	{
-		if( &(*this)(0)!=Other )
+		guardSlow(FString:: operator=(const TCHAR*));
+		if( Data==NULL || &(*this)(0)!=Other )
 		{
-			ArrayNum = ArrayMax = *Other ? appStrlen(Other)+1 : 0;
+			ArrayNum = ArrayMax = (Other && *Other) ? appStrlen(Other)+1 : 0;
 			Realloc( sizeof(TCHAR) );
 			if( ArrayNum )
 				appMemcpy( &(*this)(0), Other, ArrayNum*sizeof(TCHAR) );
 		}
 		return *this;
+		unguardSlow;
 	}
 	FString& operator=( const FString& Other )
 	{
-		if( this != &Other )
+		guardSlow(FString:: operator=(const FString&));
+		if( Data==NULL || this!=&Other )
 		{
+			checkSlow(Other.Num()>=0);
+			//checkSlow(Other.GetData()!=NULL);
 			ArrayNum = ArrayMax = Other.Num();
+			guardSlow(DoRealloc);
 			Realloc( sizeof(TCHAR) );
-			if( ArrayNum )
+			unguardSlow;
+			if( ArrayNum && &(*this)(0) )
+			{
+				guardSlow(DoCopy);
+				checkSlow(&(*this)(0)!=NULL);
+				checkSlow(ArrayNum*sizeof(TCHAR)>=0);
 				appMemcpy( &(*this)(0), *Other, ArrayNum*sizeof(TCHAR) );
+				unguardSlow;
+			}
 		}
 		return *this;
+		unguardSlow;
+	}
+	TCHAR& operator[]( INT i )
+	{
+		guardSlow(FString::operator());
+		checkSlow(i>=0);
+		checkSlow(i<ArrayNum);
+		checkSlow(ArrayMax>=ArrayNum);
+		return ((TCHAR*)Data)[i];
+		unguardSlow;
+	}
+	const TCHAR& operator[]( INT i ) const
+	{
+		guardSlow(FString::operator());
+		checkSlow(i>=0);
+		checkSlow(i<ArrayNum);
+		checkSlow(ArrayMax>=ArrayNum);
+		return ((TCHAR*)Data)[i];
+		unguardSlow;
 	}
 	~FString()
 	{
@@ -1054,18 +1167,23 @@ public:
 	}
 	FString& operator+=( const TCHAR* Str )
 	{
-		if( ArrayNum )
+		guardSlow(FString& operator+=( const TCHAR* Str ))
+		if ( Str && *Str!='\0' )
 		{
-			INT Index = ArrayNum-1;
-			Add( appStrlen(Str) );
-			appStrcpy( &(*this)(Index), Str );
-		}
-		else if( *Str )
-		{
-			Add( appStrlen(Str)+1 );
-			appStrcpy( &(*this)(0), Str );
+			if( ArrayNum )
+			{
+				INT Index = ArrayNum-1;
+				Add( appStrlen(Str) );
+				appStrcpy( &(*this)(Index), Str );
+			}
+			else if( *Str )
+			{
+				Add( appStrlen(Str)+1 );
+				appStrcpy( &(*this)(0), Str );
+			}
 		}
 		return *this;
+		unguardSlow;
 	}
 	FString& operator+=( const FString& Str )
 	{
@@ -1096,6 +1214,22 @@ public:
 	FString operator*( const FString& Str ) const
 	{
 		return operator*( *Str );
+	}
+	UBOOL operator<=( const TCHAR* Other ) const
+	{
+		return !(appStricmp( **this, Other ) > 0);
+	}
+	UBOOL operator<( const TCHAR* Other ) const
+	{
+		return appStricmp( **this, Other ) < 0;
+	}
+	UBOOL operator>=( const TCHAR* Other ) const
+	{
+		return !(appStricmp( **this, Other ) < 0);
+	}
+	UBOOL operator>( const TCHAR* Other ) const
+	{
+		return appStricmp( **this, Other ) > 0;
 	}
 	UBOOL operator==( const TCHAR* Other ) const
 	{
@@ -1129,18 +1263,36 @@ public:
 	{
 		return FString( **this + Len()-Clamp(Count,0,Len()) );
 	}
-	FString Mid( INT Start, INT Count=MAXINT ) const
+	FString Mid( INT Start, INT Count=MAXINT ) const // !! FIX-ME !! 
 	{
 		DWORD End = Start+Count;
-		Start    = Clamp( (DWORD)Start, (DWORD)0,     (DWORD)Len() );
-		End      = Clamp( (DWORD)End,   (DWORD)Start, (DWORD)Len() );
+		Start    = Clamp<DWORD>( Start, 0,     Len() );
+		End      = Clamp<DWORD>( End,   Start, Len() );
 		return FString( End-Start, **this + Start );
+	}
+	FString FStringReplace( FString Replace, FString With ) const
+	{
+		int i;
+		FString InputT;
+		FString Text( **this );
+		
+		InputT = Text;
+		Text = TEXT("");
+		i = InputT.InStr(Replace);
+		while(i != -1)
+		{
+			Text = Text + InputT.Left(i) + With;
+			InputT = InputT.Mid(i + Replace.Len());
+			i = InputT.InStr(Replace);
+		}
+		Text = Text+ InputT;
+		return Text;
 	}
 	INT InStr( const TCHAR* SubStr, UBOOL Right=0 ) const
 	{
 		if( !Right )
 		{
-			TCHAR* Tmp = appStrstr(**this,SubStr);
+			const TCHAR* Tmp = appStrstr(**this,SubStr);
 			return Tmp ? (Tmp-**this) : -1;
 		}
 		else
@@ -1186,18 +1338,63 @@ public:
 			New(i) = appToLower(New(i));
 		return New;
 	}
+	INT Int() const
+	{
+		guardSlow(FString::Int);
+		return appAtoi( **this );
+		unguardSlow;
+	}
+	FLOAT Float() const
+	{
+		guardSlow(FString::Float);
+		return appAtof( **this );
+		unguardSlow;
+	}
+
+
+	UBOOL IsAlpha()
+	{
+		guard(FString::IsAlpha);
+		for ( INT Pos=0; Pos<Len(); Pos++ )
+			if ( !appIsAlpha((*this)(Pos)) )
+				return 0;
+		return 1;
+		unguard;
+	}
+	UBOOL IsAlnum()
+	{
+		guard(FString::IsAlnum);
+		for ( INT Pos=0; Pos<Len(); Pos++ )
+			if ( !appIsAlnum((*this)(Pos)) )
+				return 0;
+		return 1;
+		unguard;
+	}
+	UBOOL IsName( UBOOL AllowDigitStart=0 )
+	{
+		guard(FString::IsName);
+		if ( Len()==0 )
+			return 1;
+		if ( !AllowDigitStart && appIsDigit((*this)(0)) )
+			return 0;
+		for ( INT Pos=0; Pos<Len(); Pos++ )
+			if ( !appIsAlnum((*this)(Pos)) && (*this)(Pos)!='_' )
+				return 0;
+		return 1;
+		unguard;
+	}
 	const TCHAR* DynamicString() const
 	{
 		guard(FString::DynamicString);
 		return appStrncpy( appDynamicString(Len()+1), **this, Len()+1 );
 		unguard;
 	}
-	FString LeftPad( INT ChCount );
-	FString RightPad( INT ChCount );
-	static FString Printf( const TCHAR* Fmt, ... );
-	static FString Chr( TCHAR Ch );
+	CORE_API FString LeftPad( INT ChCount );
+	CORE_API FString RightPad( INT ChCount );
+	CORE_API static FString Printf( const TCHAR* Fmt, ... ); // CoreI will provide fixed version.
+	CORE_API static FString Chr( TCHAR Ch );
 	CORE_API friend FArchive& operator<<( FArchive& Ar, FString& S );
-	friend struct FStringNoInit;
+	friend class FStringNoInit;
 private:
 	FString( INT InCount, const TCHAR* InSrc )
 	:	TArray<TCHAR>( InCount ? InCount+1 : 0 )
@@ -1206,29 +1403,32 @@ private:
 			appStrncpy( &(*this)(0), InSrc, InCount+1 );
 	}
 };
-struct CORE_API FStringNoInit : public FString
+class FStringNoInit : public FString
 {
+public:
 	FStringNoInit()
 	: FString( E_NoInit )
 	{}
 	FStringNoInit& operator=( const TCHAR* Other )
 	{
-		if( &(*this)(0)!=Other )
+		guardSlow(FString:: operator=(const TCHAR*));
+		if( Data==NULL || &(*this)(0)!=Other )
 		{
-			ArrayNum = ArrayMax = *Other ? appStrlen(Other)+1 : 0;
+			ArrayNum = ArrayMax = (Other && *Other) ? appStrlen(Other)+1 : 0;
 			Realloc( sizeof(TCHAR) );
 			if( ArrayNum )
 				appMemcpy( &(*this)(0), Other, ArrayNum*sizeof(TCHAR) );
 		}
 		return *this;
+		unguardSlow;
 	}
 	FStringNoInit& operator=( const FString& Other )
 	{
-		if( this != &Other )
+		if( Data==NULL || this!=&Other )
 		{
 			ArrayNum = ArrayMax = Other.Num();
 			Realloc( sizeof(TCHAR) );
-			if( ArrayNum )
+			if( ArrayNum && &(*this)(0) )
 				appMemcpy( &(*this)(0), *Other, ArrayNum*sizeof(TCHAR) );
 		}
 		return *this;
@@ -1255,6 +1455,8 @@ inline void ExchangeString( FString& A, FString& B )
 	unguardSlow;
 }
 
+#define FSTRING(str) FString(TEXT(str))
+
 /*----------------------------------------------------------------------------
 	Special archivers.
 ----------------------------------------------------------------------------*/
@@ -1268,9 +1470,9 @@ public:
 	FStringOutputDevice( const TCHAR* InStr=TEXT("") )
 	: FString( InStr )
 	{}
-	void Serialize( const TCHAR* Data, EName Event )
+	void Serialize( const TCHAR* InData, EName Event )
 	{
-		*this += (TCHAR*)Data;
+		*this += (TCHAR*)InData;
 	}
 };
 
@@ -1288,9 +1490,12 @@ public:
 	}
 	void Serialize( void* InData, INT Length )
 	{
-		if( Pos+Length>Bytes.Num() )
+		if ( Pos+Length>Bytes.Num() )
 			Bytes.Add( Pos+Length-Bytes.Num() );
-		appMemcpy( &Bytes(Pos), InData, Length );
+		if ( Length==1 )
+			Bytes(Pos) = ((BYTE*)InData)[0];
+		else if ( Length>0 )
+			appMemcpy( &Bytes(Pos), InData, Length );
 		Pos += Length;
 	}
 	INT Tell()
@@ -1324,7 +1529,7 @@ public:
 //
 // Buffer reader.
 //
-class CORE_API FBufferReader : public FArchive
+class FBufferReader : public FArchive
 {
 public:
 	FBufferReader( const TArray<BYTE>& InBytes )
@@ -1335,9 +1540,12 @@ public:
 	}
 	void Serialize( void* Data, INT Num )
 	{
-		check(Pos>=0);
-		check(Pos+Num<=Bytes.Num());
-		appMemcpy( Data, &Bytes(Pos), Num );
+		checkSlow(Pos>=0);
+		checkSlow(Pos+Num<=Bytes.Num());
+		if ( Num==1 )
+			((BYTE*)Data)[0] = Bytes(Pos);
+		else if ( Num>0 )
+			appMemcpy( Data, &Bytes(Pos), Num );
 		Pos += Num;
 	}
 	INT Tell()
@@ -1408,8 +1616,8 @@ protected:
 			Pair.HashNext  = NewHash[iHash];
 			NewHash[iHash] = i;
 		}}
-		if( Hash )
-			delete Hash;
+		if ( Hash )
+			delete[] Hash;
 		Hash = NewHash;
 		unguardSlow;
 	}
@@ -1459,12 +1667,10 @@ public:
 	}
 	~TMapBase()
 	{
-		guardSlow(TMapBase::~TMapBase);
 		if( Hash )
-			delete Hash;
+			delete[] Hash;
 		Hash = NULL;
 		HashCount = 0;
-		unguardSlow;
 	}
 	TMapBase& operator=( const TMapBase& Other )
 	{
@@ -1544,6 +1750,25 @@ public:
 	void Dump( FOutputDevice& Ar )
 	{
 		guard(TMapBase::Dump);
+#if 1
+		// Give some more useful statistics. --han
+		INT NonEmpty = 0, Worst = 0;
+		for( INT i=0; i<HashCount; i++ )
+		{
+			INT c=0;
+			for( INT j=Hash[i]; j!=INDEX_NONE; j=Pairs(j).HashNext )
+				c++;
+			if ( c>Worst )
+				Worst = c;
+			if ( c>0 )
+			{
+				NonEmpty++;
+				Ar.Logf( TEXT("   Hash[%i] = %i"), i, c );
+			}
+		}
+		Ar.Logf( TEXT("TMapBase: %i items, worst %i, %i/%i hash slots used."), Pairs.Num(), Worst, NonEmpty, HashCount );
+#else
+		// oldver.
 		Ar.Logf( TEXT("TMapBase: %i items, %i hash slots"), Pairs.Num(), HashCount );
 		for( INT i=0; i<HashCount; i++ )
 		{
@@ -1552,13 +1777,15 @@ public:
 				c++;
 			Ar.Logf( TEXT("   Hash[%i] = %i"), i, c );
 		}
+#endif
 		unguard;
 	}
 	class TIterator
 	{
 	public:
-		TIterator( TMapBase& InMap ) : Pairs( InMap.Pairs ), Index( 0 ) {}
+		TIterator( TMapBase<TK,TI>& InMap ) : Pairs( InMap.Pairs ), Index( 0 ) {}
 		void operator++()          { ++Index; }
+		void Increment()           { ++Index; }
 		void RemoveCurrent()       { Pairs.Remove(Index--); }
 		operator UBOOL() const     { return Index<Pairs.Num(); }
 		TK& Key() const            { return Pairs(Index).Key; }
@@ -1566,6 +1793,7 @@ public:
 	private:
 		TArray<TPair>& Pairs;
 		INT Index;
+		friend class TUniqueKeyIterator;
 	};
 	friend class TIterator;
 };
@@ -1577,6 +1805,12 @@ public:
 		TMapBase<TK,TI>::operator=( Other );
 		return *this;
 	}
+	INT Num()
+	{
+		guardSlow(TMap::Num);
+		return this->Pairs.Num();
+		unguardSlow;
+	}
 };
 template< class TK, class TI > class TMultiMap : public TMapBase<TK,TI>
 {
@@ -1586,9 +1820,32 @@ public:
 		TMapBase<TK,TI>::operator=( Other );
 		return *this;
 	}
-	void MultiFind( const TK& Key, TArray<TI>& Values ) 
+	INT Num()
 	{
-		guardSlow(TMap::MultiFind);
+		guardSlow(TMultiMap::Num);
+		return Pairs.Num();
+		unguardSlow;
+	}
+	INT Num( TArray<TK>& Keys )
+	{
+		guardSlow(TMultiMap::Num);
+		Keys.Empty();
+
+		for( INT i=0;i < this->Pairs.Num();i++ )
+		{
+			INT j=Keys.FindItemIndex(Pairs(i).Key);
+			if (j==INDEX_NONE)
+			{
+				j=Keys.AddZeroed();
+				Keys(j)=Pairs(i).Key;
+			}
+		}
+		return Keys.Num();
+		unguardSlow;
+	}
+	void MultiFind( const TK& Key, TArray<TI>& Values )
+	{
+		guardSlow(TMultiMap::MultiFind);
 		for( INT i=Hash[(GetTypeHash(Key) & (HashCount-1))]; i!=INDEX_NONE; i=Pairs(i).HashNext )
 			if( Pairs(i).Key==Key )
 				new(Values)TI(Pairs(i).Value);
@@ -1605,9 +1862,21 @@ public:
 				return Pairs(i).Value;
 		return Add( InKey, InValue );
 	}
+	INT MultiRemove( const TK& InKey )
+	{
+		guardSlow(TMultiMap::RemoveMulti);
+		INT Count = 0;
+		for ( INT i=Pairs.Num()-1; i>=0; i-- )
+			if ( Pairs(i).Key == InKey )
+				{Pairs.Remove(i); Count++;}
+		if ( Count )
+			this->Relax();
+		return Count;
+		unguardSlow;
+	}
 	INT RemovePair( typename TTypeInfo<TK>::ConstInitType InKey, typename TTypeInfo<TI>::ConstInitType InValue )
 	{
-		guardSlow(TMap::Remove);
+		guardSlow(TMultiMap::Remove);
 		INT Count=0;
 		for( INT i=Pairs.Num()-1; i>=0; i-- )
 			if( Pairs(i).Key==InKey && Pairs(i).Value==InValue )
@@ -1619,14 +1888,45 @@ public:
 	}
 	TI* FindPair( const TK& Key, const TK& Value )
 	{
-		guardSlow(TMap::Find);
+		guardSlow(TMultiMap::Find);
 		for( INT i=Hash[(GetTypeHash(Key) & (HashCount-1))]; i!=INDEX_NONE; i=Pairs(i).HashNext )
 			if( Pairs(i).Key==Key && Pairs(i).Value==Value )
 				return &Pairs(i).Value;
 		return NULL;
 		unguardSlow;
 	}
+	class TUniqueKeyIterator : public TMapBase<TK,TI>::TIterator
+	{
+	public:
+		TUniqueKeyIterator( TMapBase<TK,TI>& InMap )
+		: TMapBase<TK,TI>::TIterator(InMap)
+		{
+			if ( *this )
+				VisitedKeys.AddUniqueItem( Key() );
+		}
+		void operator++()
+		{
+			while ( 1 )
+			{
+				Increment();
+
+				if ( !*this )
+					return;
+
+				INT OldNum = VisitedKeys.Num();
+				VisitedKeys.AddUniqueItem(Key());
+				if ( OldNum!=VisitedKeys.Num() )
+					return;
+			}
+		}
+	private:
+		TArray<TK> VisitedKeys;
+	};
+	friend class TUniqueKeyIterator;
 };
+
+// !! TMapNoInit !!
+// !! TMultiMapNoInit !!
 
 /*----------------------------------------------------------------------------
 	Sorting template.
@@ -1745,13 +2045,36 @@ public:
 };
 
 /*----------------------------------------------------------------------------
+	TList.
+----------------------------------------------------------------------------*/
+
+//
+// Simple single-linked list template.
+//
+template <class ElementType> class TList
+{
+public:
+
+	ElementType			Element;
+	TList<ElementType>*	Next;
+
+	// Constructor.
+
+	TList(ElementType InElement,TList<ElementType>* InNext = NULL)
+	{
+		Element = InElement;
+		Next = InNext;
+	}
+};
+
+/*----------------------------------------------------------------------------
 	FRainbowPtr.
 ----------------------------------------------------------------------------*/
 
 //
 // A union of pointers of all base types.
 //
-union CORE_API FRainbowPtr
+union FRainbowPtr
 {
 	// All pointers.
 	void*  PtrVOID;

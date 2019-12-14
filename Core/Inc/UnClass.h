@@ -463,15 +463,7 @@ class CORE_API UClass : public UState
 	{
 		return GetSuperClass();
 	}
-	TCHAR* GetNameCPP() // !! CoreI will provide special variant for Deus Ex naming scheme.
-	{
-		UClass* C;
-		for( C=this; C; C=C->GetSuperClass() )
-			if( appStricmp(C->GetName(),TEXT("Actor"))==0 )
-				break;
-		
-		return const_cast<TCHAR*>(FString::Printf(TEXT("%s%s"),C?TEXT("A"):TEXT("U"),GetName()).DynamicString());
-	}
+	TCHAR* GetNameCPP(); // !! CoreI will provide special variant for Deus Ex naming scheme.
 	void Link( FArchive& Ar, UBOOL Props );
 
 	// UClass interface.

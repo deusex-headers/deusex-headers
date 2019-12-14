@@ -115,8 +115,8 @@ public:
 		{
 			Item = MruItem;
 			MruItem->Cost += COST_INFINITE;
-			return Align( MruItem->Data, Alignment );
 			appUnclockSlow(GetCycles);
+			return Align( MruItem->Data, Alignment );
 		}
 		for( FCacheItem* HashItem=HashItems[GHash(Id)]; HashItem; HashItem=HashItem->HashNext )
 		{

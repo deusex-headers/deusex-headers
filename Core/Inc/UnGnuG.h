@@ -3,7 +3,9 @@
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 =============================================================================*/
 
+#include <cmath>
 #include <cstring>
+#include <cstdlib>
 
 /*----------------------------------------------------------------------------
 	Platform compiler definitions.

@@ -77,7 +77,7 @@ public:
 
 	// FMemCache interface.
 	FMemCache() {Initialized=0;}
-    void Init( INT BytesToAllocate, INT MaxItems, void* Start=NULL, INT SegSize=0 );
+	void Init( INT BytesToAllocate, INT MaxItems, void* Start=NULL, INT SegSize=0 );
 	void Exit( INT FreeMemory );
 	void Flush( QWORD Id=0, DWORD Mask=~0, UBOOL IgnoreLocked=0 );
 	BYTE* Create( QWORD Id, FCacheItem *&Item, INT CreateSize, INT Alignment=DEFAULT_ALIGNMENT, INT SafetyPad=0 );
@@ -107,7 +107,7 @@ public:
 	BYTE* Get( QWORD Id, FCacheItem*& Item, INT Alignment=DEFAULT_ALIGNMENT )
 	{	
 		guardSlow(FMemCache::Get);
-		clockSlow(GetCycles);
+		appClockSlow(GetCycles);
 #if DO_SLOW_CLOCK
 		NumGets++;
 #endif
@@ -116,6 +116,7 @@ public:
 			Item = MruItem;
 			MruItem->Cost += COST_INFINITE;
 			return Align( MruItem->Data, Alignment );
+			appUnclockSlow(GetCycles);
 		}
 		for( FCacheItem* HashItem=HashItems[GHash(Id)]; HashItem; HashItem=HashItem->HashNext )
 		{
@@ -127,11 +128,11 @@ public:
 				Item            = HashItem;
 				HashItem->Time  = Time;
 				HashItem->Cost += COST_INFINITE;
-				unclockSlow(GetCycles);
+				appUnclockSlow(GetCycles);
 				return Align( HashItem->Data, Alignment );
 			}
 		}
-		unclockSlow(GetCycles);
+		appUnclockSlow(GetCycles);
 		return NULL;
 		unguardSlow;
 	}

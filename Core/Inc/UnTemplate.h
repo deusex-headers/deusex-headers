@@ -1186,6 +1186,12 @@ public:
 			New(i) = appToLower(New(i));
 		return New;
 	}
+	const TCHAR* DynamicString() const
+	{
+		guard(FString::DynamicString);
+		return appStrncpy( appDynamicString(Len()+1), **this, Len()+1 );
+		unguard;
+	}
 	FString LeftPad( INT ChCount );
 	FString RightPad( INT ChCount );
 	static FString Printf( const TCHAR* Fmt, ... );

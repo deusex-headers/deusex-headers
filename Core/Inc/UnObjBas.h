@@ -212,9 +212,7 @@ public:
 	}
 	TCHAR* String() const
 	{
-		TCHAR* Result = appStaticString1024();
-		appSprintf( Result, TEXT("%08X%08X%08X%08X"), A, B, C, D );
-		return Result;
+		return const_cast<TCHAR*>(FString::Printf(TEXT("%08X%08X%08X%08X"),A,B,C,D).DynamicString()); // !!
 	}
 };
 inline INT CompareGuids( FGuid* A, FGuid* B )
@@ -1127,7 +1125,7 @@ template< class T > T* LoadObject( UObject* Outer, const TCHAR* Name, const TCHA
 // 
 // This can be worked around by adding a default parameter using T.
 //
-template< class T > UClass* LoadClass( UObject* Outer, const TCHAR* Name, const TCHAR* Filename, DWORD LoadFlags, UPackageMap* Sandbox, T* JuistMSVC6Things=NULL )
+template< class T > UClass* LoadClass( UObject* Outer, const TCHAR* Name, const TCHAR* Filename, DWORD LoadFlags, UPackageMap* Sandbox, T* JustMSVC6Things=NULL )
 {
 	return UObject::StaticLoadClass( T::StaticClass(), Outer, Name, Filename, LoadFlags, Sandbox );
 }

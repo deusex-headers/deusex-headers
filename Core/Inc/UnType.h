@@ -447,9 +447,9 @@ class CORE_API UArrayProperty : public UProperty
 	// UProperty interface.
 	void Link( FArchive& Ar, UProperty* Prev );
 	UBOOL Identical( const void* A, const void* B ) const;
-	void SerializeItem( FArchive& Ar, void* Value ) const;
+	void SerializeItem( FArchive& Ar, void* Value ) const; // CoreI will provide fixed version.
 	UBOOL NetSerializeItem( FArchive& Ar, UPackageMap* Map, void* Data ) const;
-	void ExportCppItem( FOutputDevice& Out ) const;
+	void ExportCppItem( FOutputDevice& Out ) const; // CoreI will provide fixed version.
 	void ExportTextItem( TCHAR* ValueStr, BYTE* PropertyValue, BYTE* DefaultValue, INT PortFlags ) const;
 	const TCHAR* ImportText( const TCHAR* Buffer, BYTE* Data, INT PortFlags ) const;
 	void CopySingleValue( void* Dest, void* Src ) const;

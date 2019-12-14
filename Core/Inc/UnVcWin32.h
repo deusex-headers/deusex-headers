@@ -3,6 +3,15 @@
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 =============================================================================*/
 
+#define _WIN32_WINNT 0x0600
+
+/*-----------------------------------------------------------------------------
+	Includes.
+-----------------------------------------------------------------------------*/
+
+// These are needed to define extended functionality inside the headers.
+#include <cmath>
+
 /*----------------------------------------------------------------------------
 	Platform compiler definitions.
 ----------------------------------------------------------------------------*/
@@ -218,20 +227,16 @@ extern "C"
 	extern CORE_API UBOOL GTimestamp;
 }
 
-//
 // Katmai New Instructions (KNI) aka SSE.
-//
-// I have seen third party code checking for for it manually,
-// so make it a little more obvious. --han
-//
 #define GIsSSE GIsKatmai
 
 // System identification (CoreI).
 extern "C"
 {
+	extern COREI_API UBOOL GIsTscInvariant;
 	extern COREI_API UBOOL GIsSSE2;
 	extern COREI_API UBOOL GIsSSE3;
-	extern COREI_API UBOOL GTSCInvariant;
+	extern COREI_API UBOOL GIsAVX;
 }
 
 /*----------------------------------------------------------------------------
@@ -279,13 +284,108 @@ inline INT appFloor( FLOAT F )
 #pragma warning (disable : 4715)
 inline DWORD appCycles()
 {
-	if( GTimestamp ) __asm
+	DWORD L;
+
+	__asm
 	{
-		xor   eax,eax	          // Required so that VC++ realizes EAX is modified.
-		_emit 0x0F		          // RDTSC  -  Pentium+ time stamp register to EDX:EAX.
-		_emit 0x31		          // Use only 32 bits in EAX - even a Ghz cpu would have a 4+ sec period.
-		xor   edx,edx	          // Required so that VC++ realizes EDX is modified.
+		xor edx,edx // Required so that VC++ realizes EDX is modified.
+		xor eax,eax // Required so that VC++ realizes EAX is modified.
+		_emit 0x0F  // RDTSC  -  Pentium+ time stamp register to EDX:EAX.
+		_emit 0x31  // Use only 32 bits in EAX - even a Ghz cpu would have a 4+ sec period.
+		mov [L],eax // Save low value.
 	}
+
+	return L;
+}
+#pragma warning (pop)
+
+
+#if ASM
+#define DEFINED_appQuadCycles 1
+#pragma warning (push)
+#pragma warning (disable : 4035)
+#pragma warning (disable : 4715)
+inline QWORD appQuadCycles()
+{
+	union
+	{
+		struct
+		{
+			QWORD R;
+		};
+		struct
+		{
+			DWORD L;
+			DWORD H;
+		};
+	} S;
+	__asm
+	{
+		xor eax,eax   // Required so that VC++ realizes EAX is modified.
+		xor edx,edx   // Required so that VC++ realizes EDX is modified.
+		_emit 0x0F    // RDTSC  -  Pentium+ time stamp register to EDX:EAX.
+		_emit 0x31    // 
+		mov [S.L],eax // Save low value.
+		mov [S.H],edx // Save high value.
+	}
+	return S.R;
+}
+#pragma warning (pop)
+#endif
+
+
+
+#define DEFINED_appSerializedCycles 1
+#pragma warning (push)
+#pragma warning (disable : 4035)
+#pragma warning (disable : 4715)
+inline DWORD appSerializedCycles()
+{
+	DWORD L;
+
+	__asm
+	{
+		xor edx,edx // Required so that VC++ realizes EDX is modified.
+		xor eax,eax // Required so that VC++ realizes EAX is modified.
+		_emit 0x0F  // RDTSC  -  Pentium+ time stamp register to EDX:EAX.
+		_emit 0x01
+		_emit 0xF9
+		mov [L],eax // Save low value.
+	}
+
+	return L;
+}
+#pragma warning (pop)
+#endif
+#if ASM
+#define DEFINED_appSerializedQuadCycles 1
+#pragma warning (push)
+#pragma warning (disable : 4035)
+#pragma warning (disable : 4715)
+inline QWORD appSerializedQuadCycles()
+{
+	union
+	{
+		struct
+		{
+			QWORD R;
+		};
+		struct
+		{
+			DWORD L;
+			DWORD H;
+		};
+	} S;
+	__asm
+	{
+		xor eax,eax   // Required so that VC++ realizes EAX is modified.
+		xor edx,edx   // Required so that VC++ realizes EDX is modified.
+		_emit 0x0F    // RDTSC  -  Pentium+ time stamp register to EDX:EAX.
+		_emit 0x01    // 
+		mov [S.L],eax // Save low value.
+		mov [S.H],edx // Save high value.
+	}
+	return S.R;
 }
 #pragma warning (pop)
 #endif
@@ -306,12 +406,12 @@ inline DOUBLE appSeconds()
 		DWORD L,H;
 		__asm
 		{
-			xor   eax,eax	// Required so that VC++ realizes EAX is modified.
-			xor   edx,edx	// Required so that VC++ realizes EDX is modified.
-			_emit 0x0F		// RDTSC  -  Pentium+ time stamp register to EDX:EAX.
-			_emit 0x31		// Use only 32 bits in EAX - even a Ghz cpu would have a 4+ sec period.
-			mov   [L],eax   // Save low value.
-			mov   [H],edx   // Save high value.
+			xor eax,eax	// Required so that VC++ realizes EAX is modified.
+			xor edx,edx	// Required so that VC++ realizes EDX is modified.
+			_emit 0x0F  // RDTSC  -  Pentium+ time stamp register to EDX:EAX.
+			_emit 0x31  //
+			mov [L],eax // Save low value.
+			mov [H],edx // Save high value.
 		}
 		return ((DOUBLE)L +  4294967296.0 * (DOUBLE)H) * GSecondsPerCycle;
 	}
@@ -361,14 +461,6 @@ inline void appMemzero( void* Dest, INT Count )
 		mov     ecx, ebx
 		rep     stosb
 	}
-}
-#endif
-
-#if ASM3DNOW
-inline void DoFemms()
-{
-	__asm _emit 0x0f
-	__asm _emit 0x0e
 }
 #endif
 

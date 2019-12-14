@@ -17,7 +17,8 @@ class FCoords;
 class FRotator;
 class FScale;
 class FGlobalMath;
-
+class FMatrix;
+class FQuat;
 
 // Fixed point conversion.
 inline INT Fix   ( INT   A ) { return A<<16; };
@@ -141,7 +142,7 @@ inline FString appVectorFlagsString( const BYTE VectorFlags )
 {
 	guard(appVectorFlagsString);
 	if ( VectorFlags==FVF_MAX )
-		return TEXT("FVF_MAX");
+		return TEXT("MAX");
 
 	BYTE Flags = VectorFlags;
 	FString Result;
@@ -174,10 +175,9 @@ inline FString appVectorFlagsString( const BYTE VectorFlags )
 //
 // Floating point vector.
 //
-class FVector 
+class FVector
 {
 public:
-
 	// Variables.
 	union
 	{
@@ -898,7 +898,7 @@ public:
 	{
 		return FRotator( ReduceAngle(Pitch), ReduceAngle(Yaw), ReduceAngle(Roll) );
 	}
-	int IsZero() const
+	UBOOL IsZero() const
 	{
 		return ((Pitch|Yaw|Roll)&65535)==0;
 	}
@@ -976,11 +976,11 @@ public:
 	CORE_API FBox( const FVector* Points, INT Count );
 
 	// Accessors.
-	FVector& GetExtrema( int i )
+	FVector& GetExtrema( INT i )
 	{
 		return (&Min)[i];
 	}
-	const FVector& GetExtrema( int i ) const
+	const FVector& GetExtrema( INT i ) const
 	{
 		return (&Min)[i];
 	}
@@ -1075,7 +1075,7 @@ public:
 //
 // Global mathematics info.
 //
-class FGlobalMath
+class CORE_API FGlobalMath
 {
 public:
 	// Constants.
@@ -1093,7 +1093,7 @@ public:
 	const FCoords ViewCoords;
 
 	// Constructor.
-	CORE_API FGlobalMath();
+	FGlobalMath();
 
 	// Basic math functions.
 	FLOAT Sqrt( INT i )
@@ -1144,11 +1144,10 @@ public:
 	}
 
 private:
-
 	// Tables.
-	FLOAT TrigFLOAT[NUM_ANGLES];
-	FLOAT SqrtFLOAT[NUM_SQRTS];
-	FLOAT LightSqrtFLOAT[NUM_SQRTS];
+	FLOAT  TrigFLOAT		[NUM_ANGLES];
+	FLOAT  SqrtFLOAT		[NUM_SQRTS];
+	FLOAT  LightSqrtFLOAT	[NUM_SQRTS];
 };
 
 inline INT ReduceAngle( INT Angle )
@@ -1681,8 +1680,7 @@ inline FVector VRand()
 //
 // - aCDF(y) = acos(1-y/K) = acos(1-y*max_cos_val)
 //
-#if 0
-inline FVector appRandomSpreadVector( FLOAT SpreadDegrees )
+inline FVector FRandomSpreadVector( FLOAT SpreadDegrees )
 {
 	FLOAT MaxPitch = Clamp<FLOAT>( SpreadDegrees*(PI/180.0f/2.0f), 0.0f , 180.0f );
 	FLOAT K        = 1.0f-appCos(MaxPitch);
@@ -1697,7 +1695,6 @@ inline FVector appRandomSpreadVector( FLOAT SpreadDegrees )
 		Radius*appCos(RandRoll)
 	);
 }
-#endif
 
 /*-----------------------------------------------------------------------------
 	Advanced geometry.
@@ -1786,14 +1783,107 @@ inline FVector FRotator::Vector()
 	return (GMath.UnitCoords/(*this)).XAxis;
 }
 
+/*-----------------------------------------------------------------------------
+	FMatrix.          
+-----------------------------------------------------------------------------*/
 
+// Floating point 4 x 4  (4 x 3)  KNI-friendly matrix
+class FMatrix
+{
+public:
+
+	// Variables.
+	FPlane XPlane; // Each plane [x,y,z,w] is a *column* in the matrix. Column-major (e.g. OpenGL) order? --han
+	FPlane YPlane;
+	FPlane ZPlane;
+	FPlane WPlane;
+
+	const FLOAT& M( INT i, INT j ) const
+	{
+		return ((FLOAT*)&XPlane)[i*4+j];
+	}
+	FLOAT& M( INT i, INT j )
+	{
+		return ((FLOAT*)&XPlane)[i*4+j];
+	}
+	const FLOAT* Data() const
+	{
+		return (FLOAT*)&XPlane.X;
+	}
+	FLOAT* Data()
+	{
+		return (FLOAT*)&XPlane.X;
+	}
+
+	// Constructors.
+	FMatrix()
+	{}
+	FMatrix( FPlane InX, FPlane InY, FPlane InZ )
+	:	XPlane(InX), YPlane(InY), ZPlane(InZ), WPlane(0,0,0,0)
+	{}
+	FMatrix( FPlane InX, FPlane InY, FPlane InZ, FPlane InW )
+	:	XPlane(InX), YPlane(InY), ZPlane(InZ), WPlane(InW)
+	{}
+	FMatrix
+	(
+		FLOAT InXX, FLOAT InXY, FLOAT InXZ, FLOAT InXW,
+		FLOAT InYX, FLOAT InYY, FLOAT InYZ, FLOAT InYW,
+		FLOAT InZX, FLOAT InZY, FLOAT InZZ, FLOAT InZW,
+		FLOAT InWX, FLOAT InWY, FLOAT InWZ, FLOAT InWW
+	)
+	: XPlane(InXX,InXY,InXZ,InXW)
+	, YPlane(InYX,InYY,InYZ,InYW)
+	, ZPlane(InZX,InZY,InZZ,InZW)
+	, WPlane(InWX,InWY,InWZ,InWW)
+	{}
+
+	static FMatrix Identity()
+	{
+		return FMatrix
+		(
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		);
+	}
+
+	// Transpose.
+	FMatrix Transpose() const
+	{
+		return FMatrix
+		(
+			XPlane.X, YPlane.X, ZPlane.X, WPlane.X,
+			XPlane.Y, YPlane.Y, ZPlane.Y, WPlane.Y,
+			XPlane.Z, YPlane.Z, ZPlane.Z, WPlane.Z,
+			XPlane.W, YPlane.W, ZPlane.W, WPlane.W
+		);
+	}
+
+	// Functions.
+	UBOOL IsNan() const
+	{
+		return XPlane.IsNan() || YPlane.IsNan() || ZPlane.IsNan() || WPlane.IsNan();
+	}
+	UBOOL IsFinite() const
+	{
+		return XPlane.IsFinite() && YPlane.IsFinite() && ZPlane.IsFinite() && WPlane.IsFinite();
+	}
+
+	FString String() const
+	{
+		guardSlow(FMatrix::String);
+		return FString::Printf( TEXT("(XPlane=%s,YPlane=%s,ZPlane=%s,WPlane=%s)"), *XPlane.String(), *YPlane.String(), *ZPlane.String(), *WPlane.String() );
+		unguardSlow
+	}
+};
 /*-----------------------------------------------------------------------------
 	Fast 32-bit float evaluations. 
 
 	Warning: likely not portable, and useful on Pentium class processors only.
 -----------------------------------------------------------------------------*/
 
-#if defined(_REALLY_WANT_FLOATING_POINT_INT_HACKS) // You really should not be using these anymore --han
+#if defined(_REALLY_WANT_FLOATING_POINT_HACKS) // You really shouldn't be using these anymore. --han
 inline UBOOL IsSmallerPositiveFloat( FLOAT F1, FLOAT F2 )
 {
 	return (*(DWORD*)&F1)<(*(DWORD*)&F2);

@@ -31,8 +31,13 @@
 #define DEUS_EX         1
 #define LAUNCH_BAG      1
 
-// Put the no decals define here if desired.
-//#define NODECALS 1
+// Engine features and build options.
+//#define NODECALS 1 // Only define if really no decals.
+//#define UED2 1     // Only define if really UnrealEd 2.
+
+// Type used for UViewport::CurrentTime  and variables used
+// in combination with it such as UTexture::LastUpdateTime.
+typedef DOUBLE VIEWPORTTIME;
 
 /*-----------------------------------------------------------------------------
 	The End.

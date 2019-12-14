@@ -60,7 +60,7 @@ CORE_API void appRequestExit( UBOOL Force );
 CORE_API void VARARGS appFailAssert( const ANSICHAR* Expr, const ANSICHAR* File, INT Line );
 CORE_API void VARARGS appUnwindf( const TCHAR* Fmt, ... );
 CORE_API const TCHAR* appGetSystemErrorMessage( INT Error=0 );
-CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... );
+CORE_API const void appDebugMessagef( const TCHAR* Fmt, ... ); // CoreI will provide fixed version.
 
 #define debugf        GLog->Logf
 #define warnf         GWarn->Logf
@@ -234,7 +234,7 @@ CORE_API FString appFormat( FString Src, const TMultiMap<FString,FString>& Map )
 
 // DEUS_EX CNN
 #if DEUS_EX
-CORE_API UBOOL appCheckGermanSystem(void); // CoreI will provide own a version always returning false.
+CORE_API UBOOL appCheckGermanSystem(); // CoreI will provide own a version always returning false.
 #endif
 
 CORE_API const TCHAR* Localize( const TCHAR* Section, const TCHAR* Key, const TCHAR* Package=GPackage, const TCHAR* LangExt=NULL, UBOOL Optional=0 );
@@ -373,11 +373,15 @@ CORE_API TCHAR* appStrncat( TCHAR* Dest, const TCHAR* Src, INT Max );
 CORE_API TCHAR* appStrstr( const TCHAR* Str, const TCHAR* Find );
 CORE_API TCHAR* appStrchr( const TCHAR* Str, INT c );
 
-// Static strings. Use appDynamicString instead.
+// Static strings.
 #if defined(_REALLY_WANT_STATIC_STRING)
-	CORE_API TCHAR* appStaticString1024();
-	CORE_API ANSICHAR* appAnsiStaticString1024();
+	CORE_API TCHAR* appStaticString1024();        // !! Use appDynamicString instead.
+	CORE_API ANSICHAR* appAnsiStaticString1024(); // !! Use appAnsiDynamicString instead.
 #endif
+
+// Dynamic strings.
+COREI_API TCHAR* appDynamicString( SIZE_T Length );
+COREI_API ANSICHAR* appAnsiDynamicString( SIZE_T Length );
 
 // Formating.
 CORE_API INT appSprintf( TCHAR* Dest, const TCHAR* Fmt, ... ); // CoreI will provide fixed version.

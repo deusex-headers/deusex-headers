@@ -82,6 +82,9 @@ enum ENoInit {E_NoInit = 0};
 #define HALF_CACHELINE_ALIGN_STRUCT    ALIGN_STRUCT(HALF_CACHE_LINE_SIZE)
 #define QUARTER_CACHELINE_ALIGN_STRUCT ALIGN_STRUCT(QUARTER_CACHE_LINE_SIZE)
 
+// Object version info.
+#include "UnObjVer.h"
+
 /*----------------------------------------------------------------------------
 	Forward declarations.
 ----------------------------------------------------------------------------*/
@@ -169,8 +172,8 @@ public:
 	void Log( enum EName Type, const TCHAR* S );
 	void Log( const FString& S );
 	void Log( enum EName Type, const FString& S );
-	void Logf( const TCHAR* Fmt, ... );
-	void Logf( enum EName Type, const TCHAR* Fmt, ... );
+	void Logf( const TCHAR* Fmt, ... );                  // CoreI will provide fixed version.
+	void Logf( enum EName Type, const TCHAR* Fmt, ... ); // CoreI will provide fixed version.
 };
 
 // Error device.
@@ -376,25 +379,24 @@ CORE_API extern TCHAR*    GTraceTopic;
 extern "C" DLL_EXPORT TCHAR GPackage[];
 
 // Normal includes.
-#include "UnFile.h"			// Low level utility code.
-#include "UnObjVer.h"		// Object version info.
-#include "UnArc.h"			// Archive class.
-#include "UnTemplate.h"     // Dynamic arrays.
-#include "UnName.h"			// Global name subsystem.
-#include "UnStack.h"		// Script stack definition.
-#include "UnObjBas.h"		// Object base class.
-#include "UnCoreNet.h"		// Core networking.
+#include "UnFile.h"     // Low level utility code.
+#include "UnArc.h"      // Archive class.
+#include "UnTemplate.h" // Dynamic arrays.
+#include "UnName.h"     // Global name subsystem.
+#include "UnStack.h"    // Script stack definition.
+#include "UnObjBas.h"   // Object base class.
+#include "UnCoreNet.h"  // Core networking.
 #include "UnCorObj.h"		// Core object class definitions.
 #include "UnClass.h"		// Class definition.
 #include "UnType.h"			// Base property type.
 #include "UnScript.h"		// Script class.
-#include "UnFactory.h"		// Factory definition.
-#include "UnExporter.h"		// Exporter definition.
-#include "UnCache.h"		// Cache based memory management.
-#include "UnMem.h"			// Stack based memory management.
-#include "UnCid.h"          // Cache ID's.
-#include "UnBits.h"         // Bitstream archiver.
-#include "UnMath.h"         // Vector math functions.
+#include "UnFactory.h"  // Factory definition.
+#include "UnExporter.h" // Exporter definition.
+#include "UnCache.h"    // Cache based memory management.
+#include "UnMem.h"      // Stack based memory management.
+#include "UnCid.h"      // Cache ID's.
+#include "UnBits.h"     // Bitstream archiver.
+#include "UnMath.h"     // Vector math functions.
 
 /*-----------------------------------------------------------------------------
 	The End.

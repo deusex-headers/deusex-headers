@@ -3,7 +3,7 @@
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 
 	Revision history:
-		* Created by Tim Sweeney
+	 * Created by Tim Sweeney
 =============================================================================*/
 
 /*-----------------------------------------------------------------------------
@@ -107,36 +107,36 @@ public:
 
 	// Constructor.
 	FArchive()
-	:	ArVer			(PACKAGE_FILE_VERSION)
-	,	ArNetVer		(ENGINE_NEGOTIATION_VERSION)
+	: ArVer         (PACKAGE_FILE_VERSION)
+	, ArNetVer      (ENGINE_NEGOTIATION_VERSION)
 #if UNREAL_TOURNAMENT
-	,	ArLicenseeVer	(PACKAGE_FILE_VERSION_LICENSEE)
+	, ArLicenseeVer (PACKAGE_FILE_VERSION_LICENSEE)
 #endif
-	,	ArIsLoading		(0)
-	,	ArIsSaving		(0)
-	,   ArIsTrans		(0)
-	,	ArIsPersistent  (0)
-	,   ArIsError       (0)
-	,	ArForEdit		(1)
-	,	ArForClient		(1)
-	,	ArForServer		(1)
+	, ArIsLoading   (0)
+	, ArIsSaving    (0)
+	, ArIsTrans     (0)
+	,	ArIsPersistent(0)
+	, ArIsError     (0)
+	, ArForEdit     (1)
+	, ArForClient   (1)
+	, ArForServer   (1)
 	{}
 
 	// Status accessors.
-	INT Ver()				{return ArVer;}
-	INT NetVer()			{return ArNetVer&0x7fffffff;}
+	INT Ver()           { return ArVer; }
+	INT NetVer()        { return ArNetVer&0x7fffffff; }
 #if UNREAL_TOURNAMENT
-	INT LicenseeVer()		{return ArLicenseeVer;}
+	INT LicenseeVer()   { return ArLicenseeVer; }
 #endif
-	UBOOL IsLoading()		{return ArIsLoading;}
-	UBOOL IsSaving()		{return ArIsSaving;}
-	UBOOL IsTrans()			{return ArIsTrans;}
-	UBOOL IsNet()			{return (ArNetVer&0x80000000)!=0;}
-	UBOOL IsPersistent()    {return ArIsPersistent;}
-	UBOOL IsError()         {return ArIsError;}
-	UBOOL ForEdit()			{return ArForEdit;}
-	UBOOL ForClient()		{return ArForClient;}
-	UBOOL ForServer()		{return ArForServer;}
+	UBOOL IsLoading()   { return ArIsLoading; }
+	UBOOL IsSaving()    { return ArIsSaving; }
+	UBOOL IsTrans()     { return ArIsTrans; }
+	UBOOL IsNet()       { return(ArNetVer&0x80000000)!=0; }
+	UBOOL IsPersistent(){ return ArIsPersistent; }
+	UBOOL IsError()     { return ArIsError; }
+	UBOOL ForEdit()     { return ArForEdit; }
+	UBOOL ForClient()   { return ArForClient; }
+	UBOOL ForServer()   { return ArForServer; }
 
 	// Friend archivers.
 	friend FArchive& operator<<( FArchive& Ar, ANSICHAR& C )

@@ -18,8 +18,8 @@ extern void appPlatformInit();
 extern void appPlatformPreExit();
 extern void appPlatformExit();
 
-extern UBOOL GNoGC;
-extern UBOOL GCheckConflicts;
+//extern UBOOL GNoGC;           // CoreI exports this.
+//extern UBOOL GCheckConflicts; // CoreI exports this as GConflicts.
 extern UBOOL GExitPurge;
 
 /*-----------------------------------------------------------------------------

@@ -52,7 +52,6 @@ public:
 		return Num;
 	}
 	void Pop( FBitWriter& Writer );
-
 private:
 	UBOOL			Overflowed;
 	INT				Num;

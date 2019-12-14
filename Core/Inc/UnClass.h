@@ -262,9 +262,7 @@ class CORE_API UStruct : public UField
 	}
 	virtual TCHAR* GetNameCPP()
 	{
-		TCHAR* Result = appStaticString1024();
-		appSprintf( Result, TEXT("F%s"), GetName() );
-		return Result;
+		return const_cast<TCHAR*>(FString::Printf(TEXT("F%s"),GetName()).DynamicString()); // !!
 	}
 	UStruct* GetSuperStruct() const
 	{
@@ -461,16 +459,18 @@ class CORE_API UClass : public UState
 
 	// UStruct interface.
 	UBOOL MergeBools() {return 1;}
-	UStruct* GetInheritanceSuper() {return GetSuperClass();}
-	TCHAR* GetNameCPP()
+	UStruct* GetInheritanceSuper()
 	{
-		TCHAR* Result = appStaticString1024();
+		return GetSuperClass();
+	}
+	TCHAR* GetNameCPP() // !! CoreI will provide special variant for Deus Ex naming scheme.
+	{
 		UClass* C;
 		for( C=this; C; C=C->GetSuperClass() )
 			if( appStricmp(C->GetName(),TEXT("Actor"))==0 )
 				break;
-		appSprintf( Result, TEXT("%s%s"), C ? TEXT("A") : TEXT("U"), GetName() );
-		return Result;
+		
+		return const_cast<TCHAR*>(FString::Printf(TEXT("%s%s"),C?TEXT("A"):TEXT("U"),GetName()).DynamicString());
 	}
 	void Link( FArchive& Ar, UBOOL Props );
 

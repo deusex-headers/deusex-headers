@@ -3,7 +3,7 @@
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 
 	Revision history:
-		* Created by Tim Sweeney
+	 * Created by Tim Sweeney
 =============================================================================*/
 
 /*----------------------------------------------------------------------------
@@ -21,18 +21,18 @@ class CORE_API UFactory : public UObject
 	#include "Friends/UFactory.h"
 
 	// Per-class variables.
-	UClass*         SupportedClass;
-	UClass*			ContextClass;
-	FString			Description;
-	FString			InContextCommand;
-	FString			OutOfContextCommand;
+	UClass* SupportedClass;
+	UClass*	ContextClass;
+	FString	Description;
+	FString	InContextCommand;
+	FString	OutOfContextCommand;
 	TArray<FString> Formats;
-	BITFIELD        bCreateNew         : 1;
-	BITFIELD		bShowPropertySheet : 1;
-	BITFIELD		bShowCategories    : 1;
-	BITFIELD		bText              : 1;
-	BITFIELD		bMulti			   : 1;
-	INT				AutoPriority;
+	BITFIELD bCreateNew:1;
+	BITFIELD bShowPropertySheet:1;
+	BITFIELD bShowCategories:1;
+	BITFIELD bText:1;
+	BITFIELD bMulti:1;
+	INT	AutoPriority;
 
 	// Constructors.
 	UFactory();
@@ -47,7 +47,7 @@ class CORE_API UFactory : public UObject
 	virtual UObject* FactoryCreateNew( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, UObject* Context, FFeedbackContext* Warn ) {return NULL;}
 
 	// UFactory functions.
-	static UObject* StaticImportObject( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, const TCHAR* Filename=TEXT(""), UObject* Context=NULL, UFactory* Factory=NULL, const TCHAR* Parms=NULL, FFeedbackContext* Warn=GWarn );
+	static UObject* StaticImportObject( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, const TCHAR* Filename=TEXT(""), UObject* Context=NULL, UFactory* Factory=NULL, const TCHAR* Parms=NULL, FFeedbackContext* Warn=GWarn ); // CoreI will provide version fixing AutoPriority.
 };
 
 // Import an object using a UFactory.
@@ -55,28 +55,6 @@ template< class T > T* ImportObject( UObject* Outer, FName Name, DWORD Flags, co
 {
 	return (T*)UFactory::StaticImportObject( T::StaticClass(), Outer, Name, Flags, Filename, Context, Factory, Parms, Warn );
 }
-
-/*-----------------------------------------------------------------------------
-	UTextBufferFactory.
------------------------------------------------------------------------------*/
-
-//
-// Imports UTextBuffer objects.
-//
-class CORE_API UTextBufferFactory : public UFactory
-{
-	DECLARE_CLASS(UTextBufferFactory,UFactory,0)
-
-	// Friends.
-	#include "Friends/UTextBufferFactory.h"
-
-	// Constructors.
-	UTextBufferFactory();
-	void StaticConstructor();
-
-	// UFactory interface.
-	UObject* FactoryCreateText( UClass* InClass, UObject* InOuter, FName InName, DWORD InFlags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn );
-};
 
 /*----------------------------------------------------------------------------
 	The End.

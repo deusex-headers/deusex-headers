@@ -138,9 +138,9 @@ enum EVectorFlags
 	FVF_MAX       = 0xFF,
 };
 
-inline FString appVectorFlagsString( const BYTE VectorFlags )
+inline FString FVectorFlagsString( const BYTE VectorFlags )
 {
-	guard(appVectorFlagsString);
+	guard(FVectorFlagsString);
 	if ( VectorFlags==FVF_MAX )
 		return TEXT("MAX");
 
@@ -626,9 +626,9 @@ enum ESheerAxis
 	SHEER_MAX  = 0xFF
 };
 
-inline FString appSheerAxisString( const BYTE SheerAxis )
+inline FString FSheerAxisString( const BYTE SheerAxis )
 {
-	guard(appSheerAxisString);
+	guard(FSheerAxisString);
 	switch ( SheerAxis )
 	{
 		case SHEER_None: return TEXT("None");
@@ -698,7 +698,7 @@ public:
 	FString String() const
 	{
 		guardSlow(FScale::String);
-		return FString::Printf( TEXT("(Scale=%s,SheerRate=%f,SheerAxis=%s)"), *Scale.String(), SheerRate, *appSheerAxisString(SheerAxis) );
+		return FString::Printf( TEXT("(Scale=%s,SheerRate=%f,SheerAxis=%s)"), *Scale.String(), SheerRate, *FSheerAxisString(SheerAxis) );
 		unguardSlow;
 	}
 };
@@ -1877,6 +1877,107 @@ public:
 		unguardSlow
 	}
 };
+
+
+/*-----------------------------------------------------------------------------
+	FQuat.          
+-----------------------------------------------------------------------------*/
+
+// Floating point quaternion.
+class FQuat
+{
+public:
+	// Variables.
+	FLOAT X,Y,Z,W;
+	// X,Y,Z, W also doubles as the Axis/Angle format.
+
+	// Constructors.
+	FQuat()
+	{}
+
+	FQuat( FLOAT InX, FLOAT InY, FLOAT InZ, FLOAT InW )
+	:	X(InX)
+	, Y(InY)
+	, Z(InZ)
+	, W(InW)
+	{}
+
+	// Binary operators.
+	FQuat operator+( const FQuat& Q ) const
+	{
+		return FQuat( X + Q.X, Y + Q.Y, Z + Q.Z, W + Q.W );
+	}
+
+	FQuat operator-( const FQuat& Q ) const
+	{
+		return FQuat( X - Q.X, Y - Q.Y, Z - Q.Z, W - Q.W );
+	}
+
+	FQuat operator*( const FQuat& Q ) const
+	{
+		return FQuat( 
+			X*Q.X - Y*Q.Y - Z*Q.Z - W*Q.W, 
+			X*Q.Y + Y*Q.X + Z*Q.W - W*Q.Z, 
+			X*Q.Z - Y*Q.W + Z*Q.X + W*Q.Y, 
+			X*Q.W + Y*Q.Z - Z*Q.Y + W*Q.X
+			);
+	}
+
+	FQuat operator*( const FLOAT& Scale ) const
+	{
+		return FQuat( Scale*X, Scale*Y, Scale*Z, Scale*W);			
+	}
+	
+	// Unary operators.
+	FQuat operator-() const
+	{
+		return FQuat( X, Y, Z, -W );
+	}
+
+    // Misc operators
+	UBOOL operator!=( const FQuat& Q ) const
+	{
+		return X!=Q.X || Y!=Q.Y || Z!=Q.Z || W!=Q.W;
+	}
+	
+	UBOOL Normalize()
+	{
+		// 
+		FLOAT SquareSum = (FLOAT)(X*X+Y*Y+Z*Z+W*W);
+		if( SquareSum >= DELTA )
+		{
+			FLOAT Scale = 1.0f/(FLOAT)appSqrt(SquareSum);
+			X *= Scale; 
+			Y *= Scale; 
+			Z *= Scale;
+			W *= Scale;
+			return true;
+		}
+		else 
+		{	
+			X = 0.0f;
+			Y = 0.0f;
+			Z = 0.1f;
+			W = 0.0f;
+			return false;
+		}
+	}
+
+	// Serializer.
+	friend FArchive& operator<<( FArchive& Ar, FQuat& F )
+	{
+		return Ar << F.X << F.Y << F.Z << F.W;
+	}
+
+	// Returns a string description.
+	FString String() const
+	{
+		guardSlow(FQuat::String);
+		return FString::Printf( TEXT("(X=%f,Y=%f,Z=%f,W=%f)"), X, Y, Z, W );
+		unguardSlow;
+	}
+};
+
 /*-----------------------------------------------------------------------------
 	Fast 32-bit float evaluations. 
 

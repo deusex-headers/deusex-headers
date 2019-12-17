@@ -237,6 +237,25 @@ extern "C"
 	extern COREI_API UBOOL GIsAVX;
 }
 
+/*-----------------------------------------------------------------------------
+	Compiler intrinsics later VC version did offer out of the box.
+-----------------------------------------------------------------------------*/
+
+// Added with Visual Studio 2005.
+#if ASM && _MSC_VER<1400
+inline BYTE _BitScanReverse( DWORD* Index, DWORD Mask )
+{
+	_asm
+	{
+		bsr eax, [Mask]
+		mov ebx, [Index]
+		mov [ebx], eax
+	}
+
+	return Mask!=0;
+}
+#endif
+
 /*----------------------------------------------------------------------------
 	Functions.
 ----------------------------------------------------------------------------*/
@@ -459,6 +478,15 @@ inline void appMemzero( void* Dest, INT Count )
 		mov     ecx, ebx
 		rep     stosb
 	}
+}
+#endif
+
+#if ASM
+#define DEFINED_appFloorLogTwo
+inline BYTE appFloorLogTwo( DWORD Arg )
+{
+	DWORD Result=0;
+	return _BitScanReverse(&Result,Arg) ? Result : 0;
 }
 #endif
 

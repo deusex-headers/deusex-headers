@@ -743,6 +743,19 @@ inline void operator delete[]( void* Ptr )
 
 CORE_API BYTE appCeilLogTwo( DWORD Arg );
 
+#ifndef DEFINED_appFloorLogTwo
+inline BYTE appFloorLogTwo( DWORD Arg )
+{
+	INT Bit = 32;
+	while ( --Bit>=0 )
+		if ( Arg&(1u<<DWORD(Bit)) )
+			return Bit;
+
+	// lg(0) is undefined, so we can't solve.
+	return 0;
+}
+#endif
+
 /*-----------------------------------------------------------------------------
 	MD5 functions.
 -----------------------------------------------------------------------------*/

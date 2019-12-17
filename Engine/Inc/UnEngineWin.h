@@ -2,9 +2,12 @@
 	UnEngineWin.h: Unreal engine windows-specific code.
 	Copyright 1997-1999 Epic Games, Inc. All Rights Reserved.
 
-Revision history:
-	* Created by Tim Sweeney.
+	Revision history:
+	 * Created by Tim Sweeney.
 =============================================================================*/
+
+// Move to UnEngineWin.h?
+#define RUNNING_MUTEX TEXT(#DEFAULT_PACKAGE) TEXT("IsRunning")
 
 #pragma DISABLE_OPTIMIZATION /* Avoid VC++ code generation bug */
 
